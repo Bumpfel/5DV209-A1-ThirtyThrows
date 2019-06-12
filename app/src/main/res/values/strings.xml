@@ -5,7 +5,8 @@
     <string name="how_to_play">How to Play</string>
 
     <!-- GameActivity -->
-    <string name="roll_button">Roll</string>
+    <string name="roll_button">Roll (%1$d)</string>
     <string name="restart_button">Restart Game</string>
+    <string name="game_over_text">Game Over. You got %1$s</string>
 
 </resources>

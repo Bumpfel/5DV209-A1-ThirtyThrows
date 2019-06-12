@@ -2,8 +2,6 @@ package eren0045.assignment1;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -49,7 +47,6 @@ public class MainGameActivity extends AppCompatActivity {
         Button mRestartButton = findViewById(R.id.restart_button);
         mRestartButton.setOnClickListener(view -> {
             nrOfRolls = 0;
-            mNotificationMsg.setText("");
             initializeGame();
         });
 
@@ -64,6 +61,8 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
     private void initializeGame() {
+        mNotificationMsg.setText("");
+
         //associate buttons with a java die object
         dice.put(mDieButton1, new Die());
         dice.put(mDieButton2, new Die());
@@ -84,7 +83,8 @@ public class MainGameActivity extends AppCompatActivity {
         }
 
         mRollButton.setEnabled(true);
-        mRollButton.setText("Roll (" + (MAX_ROLLS - nrOfRolls) + ")");
+        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
+        mRollButton.setText(rollText);
     }
 
     private void restoreGame(Bundle state) {
@@ -96,9 +96,6 @@ public class MainGameActivity extends AppCompatActivity {
         dice.put(mDieButton6, state.getParcelable("" + mDieButton6.getId()));
 
         nrOfRolls = state.getInt(STATE.ROLLS.toString());
-
-        Log.w(TAG, "max rolls: " + MAX_ROLLS);
-        Log.w(TAG, "nr of rolls: " + nrOfRolls);
 
         for(Button dieButton : dice.keySet()) {
 
@@ -121,7 +118,8 @@ public class MainGameActivity extends AppCompatActivity {
         else
             mRollButton.setEnabled(true);
 
-        mRollButton.setText("Roll (" + (MAX_ROLLS - nrOfRolls) + ")");
+        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
+        mRollButton.setText(rollText);
 
         mNotificationMsg.setText(state.getString(STATE.NOTIFICATION.toString()));
 
@@ -182,11 +180,10 @@ public class MainGameActivity extends AppCompatActivity {
                 dieButton.setEnabled(false);
             }
             mRollButton.setEnabled(false);
-            mNotificationMsg.setText("Game over. You got -SOME_SCORE-");
-            //Toast.makeText(this, "Game over", Toast.LENGTH_SHORT).show();
+            mNotificationMsg.setText(String.format(getString(R.string.game_over_text), "SOME_SCORE"));
         }
 
-
-        mRollButton.setText("Roll (" + (MAX_ROLLS - nrOfRolls) + ")"); // use string resources with placeholders (kolla upp placeholders)
+        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
+        mRollButton.setText(rollText);
     }
 }
