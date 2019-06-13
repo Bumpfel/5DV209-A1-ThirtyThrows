@@ -2,7 +2,9 @@ package eren0045.assignment1;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -10,12 +12,12 @@ import java.util.Map;
 
 public class MainGameActivity extends AppCompatActivity {
 
-    private Button mDieButton1;
-    private Button mDieButton2;
-    private Button mDieButton3;
-    private Button mDieButton4;
-    private Button mDieButton5;
-    private Button mDieButton6;
+    private ImageButton mDieButton1;
+    private ImageButton mDieButton2;
+    private ImageButton mDieButton3;
+    private ImageButton mDieButton4;
+    private ImageButton mDieButton5;
+    private ImageButton mDieButton6;
 
     private TextView mNotificationMsg;
     private Button mRollButton;
@@ -25,12 +27,16 @@ public class MainGameActivity extends AppCompatActivity {
 
     private enum STATE { ROLLS, NOTIFICATION }
 
-    private static final String TAG = "MainGameActivity";
+    private static final String TAG = "---MainGameActivity---";
 
-    private Map<Button, Die> dice = new HashMap<>();
+    private Map<ImageButton, Die> dice = new HashMap<>();
+    private int[] availableDice = { 0, R.drawable.white1, R.drawable.white2, R.drawable.white3, R.drawable.white4, R.drawable.white5, R.drawable.white6 };
+    private int[] unavailableDice = { 0, R.drawable.grey1, R.drawable.grey2, R.drawable.grey3, R.drawable.grey4, R.drawable.grey5, R.drawable.grey6 };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() called");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_game);
 
@@ -56,8 +62,15 @@ public class MainGameActivity extends AppCompatActivity {
 
         if(savedInstanceState == null)
             initializeGame();
-        else
-            restoreGame(savedInstanceState);
+//        else
+//            restoreGame(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        Log.d(TAG, "onRestoreInstanceState() called");
+        super.onRestoreInstanceState(state);
+        restoreGame(state);
     }
 
     private void initializeGame() {
@@ -71,20 +84,19 @@ public class MainGameActivity extends AppCompatActivity {
         dice.put(mDieButton5, new Die());
         dice.put(mDieButton6, new Die());
 
-
+        //mDieButton1.setImageDrawable(getResources().getDrawable(R.drawable.grey4));
         // set text and onClick action for each die
-        for(Button dieButton : dice.keySet()) {
+        for(ImageButton dieButton : dice.keySet()) {
 
-            dieButton.setAlpha(1);
             dieButton.setEnabled(true);
 
-            dieButton.setText("" + dice.get(dieButton).getValue());
+            int imgId = availableDice[dice.get(dieButton).getValue()];
+            dieButton.setImageDrawable(getResources().getDrawable(imgId));
             dieButton.setOnClickListener(view -> toggleDie(dieButton));
         }
 
         mRollButton.setEnabled(true);
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
-        mRollButton.setText(rollText);
+        mRollButton.setText(getString(R.string.roll_button, MAX_ROLLS - nrOfRolls));
     }
 
     private void restoreGame(Bundle state) {
@@ -97,19 +109,19 @@ public class MainGameActivity extends AppCompatActivity {
 
         nrOfRolls = state.getInt(STATE.ROLLS.toString());
 
-        for(Button dieButton : dice.keySet()) {
+        for(ImageButton dieButton : dice.keySet()) {
 
-            if(MAX_ROLLS == nrOfRolls) {
-                dieButton.setEnabled(false);
-            }
-            else if(dice.get(dieButton).isDisabled()) {
-                dieButton.setAlpha((float) 0.2);
-            }
-            else {
-                dieButton.setAlpha(1);
-                dieButton.setEnabled(true);
-            }
-            dieButton.setText("" + dice.get(dieButton).getValue());
+            int imgId;
+            if(dice.get(dieButton).isDisabled())
+                imgId = unavailableDice[dice.get(dieButton).getValue()];
+            else
+                imgId = availableDice[dice.get(dieButton).getValue()];
+
+            dieButton.setImageDrawable(getResources().getDrawable(imgId));
+
+            if(MAX_ROLLS == nrOfRolls)
+               dieButton.setEnabled(false);
+
             dieButton.setOnClickListener(view -> toggleDie(dieButton));
         }
 
@@ -118,8 +130,7 @@ public class MainGameActivity extends AppCompatActivity {
         else
             mRollButton.setEnabled(true);
 
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
-        mRollButton.setText(rollText);
+        mRollButton.setText(getString(R.string.roll_button, MAX_ROLLS - nrOfRolls));
 
         mNotificationMsg.setText(state.getString(STATE.NOTIFICATION.toString()));
 
@@ -127,11 +138,12 @@ public class MainGameActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
+        Log.d(TAG, "onSaveInstanceState() called");
         state.putInt(STATE.ROLLS.toString(), nrOfRolls);
         //state.putInt(STATE.NOTIFICATION.toString(), mNotificationMsg.getId());
         state.putString(STATE.NOTIFICATION.toString(), mNotificationMsg.getText().toString());
 
-        for(Button dieButton : dice.keySet()) {
+        for(ImageButton dieButton : dice.keySet()) {
             state.putParcelable("" + dieButton.getId(), dice.get(dieButton));
         }
 
@@ -152,38 +164,44 @@ public class MainGameActivity extends AppCompatActivity {
     }*/
 
 
-    private void toggleDie(Button button) { // TODO possibly re-write
-        Die thisDie = dice.get(button);
-        dice.get(button).toggleDie();
+    private void toggleDie(ImageButton dieButton) { // TODO possibly re-write toa make it more re-usable
+        Die thisDie = dice.get(dieButton);
+        dice.get(dieButton).toggleDie();
 
+        int imgId;
+        int dieValue = dice.get(dieButton).getValue();
         if(thisDie.isDisabled())
-            button.setAlpha((float) 0.2);
+            imgId = unavailableDice[dieValue];
         else
-            button.setAlpha(1);
+            imgId = availableDice[dieValue];
+
+        dieButton.setImageDrawable(getResources().getDrawable(imgId));
     }
 
 
     private void rollDice() {
         if(nrOfRolls < MAX_ROLLS) {
-            for(Button dieButton : dice.keySet()) {
+            for(ImageButton dieButton : dice.keySet()) {
                 Die thisDie = dice.get(dieButton);
                 if(!thisDie.isDisabled()) {
                     thisDie.throwDie();
-                    dieButton.setText("" + thisDie.getValue());
+                    int imgId = availableDice[dice.get(dieButton).getValue()];
+                    dieButton.setImageDrawable(getResources().getDrawable(imgId));
                 }
             }
             nrOfRolls ++;
         }
         if(nrOfRolls == MAX_ROLLS) {
-            for(Button dieButton : dice.keySet()) {
-                dieButton.setAlpha(1);
+            for(ImageButton dieButton : dice.keySet()) {
+                int imgId = unavailableDice[dice.get(dieButton).getValue()];
+                dieButton.setImageDrawable(getResources().getDrawable(imgId));
                 dieButton.setEnabled(false);
             }
             mRollButton.setEnabled(false);
-            mNotificationMsg.setText(String.format(getString(R.string.game_over_text), "SOME_SCORE"));
+            mNotificationMsg.setText(getString(R.string.game_over_text, "SOME_SCORE"));
         }
 
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
+        String rollText = getString(R.string.roll_button, MAX_ROLLS - nrOfRolls);
         mRollButton.setText(rollText);
     }
 }
