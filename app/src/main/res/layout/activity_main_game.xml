@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#cfcfcf"
+    android:background="@color/backgroundColour"
     tools:context="eren0045.assignment1.MainGameActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -16,126 +17,115 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:gravity="center"
             android:orientation="horizontal">
-<!--
-            <ImageButton
-                android:id="@+id/imageButton1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/white1" />
 
-            <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                app:srcCompat="@drawable/white2" />
-
-            <ImageButton
-                android:id="@+id/imageButton3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                app:srcCompat="@drawable/white3" />
--->
             <ImageButton
                 android:id="@+id/die1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die1"
+                android:src="@drawable/white_null" />
 
             <ImageButton
                 android:id="@+id/die2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die2"
+                android:src="@drawable/white_null" />
 
             <ImageButton
                 android:id="@+id/die3"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die3"
+                android:src="@drawable/white_null" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="200dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/die4"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die4"
+                android:src="@drawable/white_null" />
 
             <ImageButton
                 android:id="@+id/die5"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die5"
+                android:src="@drawable/white_null" />
 
             <ImageButton
                 android:id="@+id/die6"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <!--
-                        <ImageButton
-                            android:id="@+id/imageButton4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            android:layout_weight="1"
-                            app:srcCompat="@drawable/white4" />
-
-                        <ImageButton
-                            android:id="@+id/imageButton5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            app:srcCompat="@drawable/white5" />
-
-                        <ImageButton
-                            android:id="@+id/imageButton6"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginLeft="16dp"
-                            app:srcCompat="@drawable/white6" />
-            -->
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/die6"
+                android:src="@drawable/white_null" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/notification_msg"
+        <Spinner
+            android:id="@+id/score_dropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notification msg" />
+            android:entries="@array/score_choices"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/notification_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notification text" />
+
+        <Button
+            android:id="@+id/score_confirmation_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/score_confirmation"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/roll_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/roll_button"/>
+            android:text="@string/roll_button" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/round_nr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/round_nr" />
+
+        <TextView
+            android:id="@+id/total_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/total_score" />
 
         <Button
             android:id="@+id/restart_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/restart_button" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
