@@ -9,7 +9,8 @@ class Die implements Parcelable {
 
     private int value = 0;
     private Random random = new Random();
-    private boolean disabled = false;
+    private boolean enabled = true;
+    private boolean counted = false;
 
     public Die() {
         throwDie();
@@ -20,15 +21,23 @@ class Die implements Parcelable {
     }
 
     public void toggleDie() {
-        disabled = !disabled;
+        enabled = !enabled;
     }
 
-    public boolean isDisabled() {
-        return disabled;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public int getValue() {
         return value;
+    }
+
+    public boolean isCounted() {
+        return counted;
+    }
+
+    public void setCounted() {
+        counted = true;
     }
 
 
