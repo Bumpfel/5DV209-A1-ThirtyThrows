@@ -33,7 +33,7 @@ public class MainGameActivity extends AppCompatActivity {
 
     private TextView mNotificationText;
     private Button mRollButton;
-    private Button mRestartButton;
+    private Button mResetButton;
     private Spinner mScoreChoiceDropdown;
     private Button mScoreConfirmationButton;
     private TextView mRoundNrText;
@@ -59,6 +59,10 @@ public class MainGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_game);
 
+        initialize();
+    }
+
+    private void initialize() {
         // tie buttons to variables
         mDieButton1 = findViewById(R.id.die1);
         mDieButton2 = findViewById(R.id.die2);
@@ -71,19 +75,22 @@ public class MainGameActivity extends AppCompatActivity {
             dieButton.setOnClickListener(view -> toggleDie(dieButton));
         }
 
-        mNotificationText = findViewById(R.id.notification_text);
-
+        // Action for roll button
         mRollButton = findViewById(R.id.roll_button);
         mRollButton.setOnClickListener(view -> startRound());
+        mRollButton.setVisibility(View.VISIBLE);
+        mRollButton.setText(R.string.start_game);
 
-        mRestartButton = findViewById(R.id.restart_button);
-        mRestartButton.setOnClickListener(view -> resetGame());
+        // Action for reset button
+        mResetButton = findViewById(R.id.reset_button);
+        mResetButton.setOnClickListener(view -> resetGame());
 
+        // Populate and set action for score choice dropdown
         mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
-        mScoreChoices = new ArrayList<Score>(Arrays.asList(Score.values()));
-        mSpinnerAdapter = new ArrayAdapter<Score>(this, android.R.layout.simple_spinner_dropdown_item, mScoreChoices);
+//        mScoreChoices = new ArrayList<>(Arrays.asList(Score.values()));
+        mScoreChoices = mGame.getAvailableScoreChoices();
+        mSpinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mScoreChoices);
         mScoreChoiceDropdown.setAdapter(mSpinnerAdapter);
-        //TODO score ska beräknas direkt när rundan är slut med den "valda", eller aktiva, poängräkningen
         mScoreChoiceDropdown.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -99,11 +106,19 @@ public class MainGameActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        mNotificationText = findViewById(R.id.notification_text);
+
+        // Use score choice button
         mScoreConfirmationButton = findViewById(R.id.score_confirmation_button);
         mScoreConfirmationButton.setOnClickListener(view -> useScore());
+        mScoreConfirmationButton.setVisibility(View.GONE);
 
+        // game info texts
         mRoundNrText = findViewById(R.id.round_nr);
+        mRoundNrText.setText(null);
         mTotalScoreText = findViewById(R.id.total_score);
+        mTotalScoreText.setText(null);
     }
 
 
@@ -158,10 +173,8 @@ public class MainGameActivity extends AppCompatActivity {
 
     private void resetGame() {
         mGame.resetGame();
-        mTotalScoreText.setText(null);
-        mScoreChoices = new ArrayList<Score>(Arrays.asList(Score.values())); //TODO code dupliation
-        mSpinnerAdapter.notifyDataSetChanged();
-        //        mSpinnerAdapter = new ArrayAdapter<Score>(this, android.R.layout.simple_spinner_dropdown_item, mScoreChoices);
+
+        initialize();
         startRound();
     }
 
@@ -182,7 +195,7 @@ public class MainGameActivity extends AppCompatActivity {
 //        mDice.put(mDieButton5, dieArray[4]);
 //        mDice.put(mDieButton6, dieArray[5]);
 
-        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
+        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound() + 1));
 
         // enable die buttons and update their images
         for(ImageButton dieButton : mDice.keySet()) {
@@ -231,10 +244,17 @@ public class MainGameActivity extends AppCompatActivity {
         }
 
         if(mGame.isRoundOver()) {
-            mRollButton.setVisibility(View.GONE);
+            mGame.calcBestScore(); //TODO (low prio) could add a checkbox option to use automatic calculation or not
+
+            mRollButton.setVisibility(View.INVISIBLE);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+
+            Score bestScore= mGame.getBestScoreChoice();
+            int bestScoreIndex = mScoreChoices.indexOf(bestScore);
+            mScoreChoiceDropdown.setSelection(bestScoreIndex);
+
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
-            mNotificationText.setText(getString(R.string.round_over_text));
+//            mNotificationText.setText(getString(R.string.round_over_text));
         }
 
         updateRollButtonText();
@@ -243,7 +263,7 @@ public class MainGameActivity extends AppCompatActivity {
 
     private void useScore() {
         mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
-        mScoreConfirmationButton.setVisibility(View.GONE);
+        mScoreConfirmationButton.setVisibility(View.INVISIBLE);
         mGame.setScore();
 //        totalScore += mTempRoundScore;
 //        roundScore[currentRound] = mTempRoundScore;
@@ -261,8 +281,9 @@ public class MainGameActivity extends AppCompatActivity {
             mRollButton.setOnClickListener(view -> startRound());
         }
 
-        int pos = mScoreChoiceDropdown.getSelectedItemPosition();
-        mScoreChoices.remove(pos);
+//        int pos = mScoreChoiceDropdown.getSelectedItemPosition();
+//        mScoreChoices.remove(pos);
+        mScoreChoices = mGame.getAvailableScoreChoices();
         mSpinnerAdapter.notifyDataSetChanged();
     }
 

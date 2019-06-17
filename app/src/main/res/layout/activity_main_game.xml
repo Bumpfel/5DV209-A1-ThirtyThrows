@@ -14,6 +14,14 @@
         android:gravity="center"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/round_nr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/round_nr"
+            android:textSize="24sp" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -85,20 +93,23 @@
             android:id="@+id/notification_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notification text" />
+            android:text="Notification text"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/score_confirmation_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/score_confirmation"
+            android:textSize="18sp"
             android:visibility="gone" />
 
         <Button
             android:id="@+id/roll_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/start_game" />
+            android:text="@string/start_game"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -113,13 +124,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/round_nr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/round_nr" />
-
-        <TextView
             android:id="@+id/total_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -127,10 +131,10 @@
             android:text="@string/total_score" />
 
         <Button
-            android:id="@+id/restart_button"
+            android:id="@+id/reset_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/restart_button" />
+            android:text="@string/reset_button" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class DiceGame implements Parcelable {
@@ -14,12 +15,16 @@ public class DiceGame implements Parcelable {
     final int NR_OF_DICE = 6;
 
     private ArrayList<Die> dice = new ArrayList<>(NR_OF_DICE);
+    private ArrayList<Score> availableScoreChoices = new ArrayList<>(Arrays.asList(Score.values()));
 
-    private int rollsLeft;
-    private int currentRound = 0;
-    private int[] roundScore = new int[MAX_ROUNDS];
-    private int totalScore = 0;
-    private int tempRoundScore = 0;
+    private int mRollsLeft;
+    private int mCurrentRound;
+    private int[] mRoundScore;
+    private Score[] mRoundScoreChoices;
+    private int mTotalScore;
+    private int mTempRoundScore;
+    private Score mChosenScore = null;
+    private Score mBestScoreChoice = null;
 
     // Used for score calculations
     private ArrayList<Die> diceUsedForThisCalc;
@@ -30,7 +35,7 @@ public class DiceGame implements Parcelable {
     private final String TAG = "------DiceGame";
 
     DiceGame() {
-        getNewDice();
+        resetGame();
     }
 
 
@@ -58,16 +63,16 @@ public class DiceGame implements Parcelable {
                     }
                 }
             }
-            rollsLeft --;
+            mRollsLeft--;
         }
     }
 
     int getRollsLeft() {
-        return rollsLeft;
+        return mRollsLeft;
     }
 
     int getCurrentRound() {
-        return currentRound;
+        return mCurrentRound;
     }
 
     ArrayList<Die> getDice() {
@@ -75,70 +80,111 @@ public class DiceGame implements Parcelable {
     }
 
     void newRound() {
-        rollsLeft = MAX_ROLLS - 1;
+        mRollsLeft = MAX_ROLLS - 1;
         getNewDice();
     }
 
     void resetGame() {
-        currentRound = 0;
-        tempRoundScore = 0;
-        roundScore = new int[MAX_ROUNDS];
+        mCurrentRound = 0;
+        mTempRoundScore = 0;
+        mRoundScore = new int[MAX_ROUNDS];
+        mRoundScoreChoices = new Score[MAX_ROUNDS];
 
         newRound();
     }
 
     boolean isRoundOver() {
-        return rollsLeft == 0;
+        return mRollsLeft == 0;
     }
 
     boolean isOver() {
-        return currentRound == MAX_ROUNDS;
+        return mCurrentRound == MAX_ROUNDS;
     }
 
+    /**
+     * Records round score, score choice, removes score choice for next round, and sets round to +1
+     */
     void setScore() {
-        totalScore += tempRoundScore;
-        roundScore[currentRound] = tempRoundScore;
-        currentRound ++;
+        mTotalScore += mTempRoundScore;
+        mRoundScore[mCurrentRound] = mTempRoundScore;
+        mRoundScoreChoices[mCurrentRound] = mChosenScore;
+        availableScoreChoices.remove(mChosenScore);
+        mCurrentRound++;
+        Log.d("-", "==============================================");
+        Log.d("-", "Round " + mCurrentRound);
+        Log.d("-", "==============================================");
+
+        mBestScoreChoice = null;
     }
 
     int getTotalScore() {
-        return totalScore;
+        return mTotalScore;
     }
 
-    void calcBestScore() {
+    /**
+     * Finds the best score for the rolled dice given the available scoring choices
+     * @return best found score
+     */
+    int calcBestScore() {
+        int bestScore = 0;
+        ArrayList<ArrayList<Die>> bestScoreDiceCombos = null;
 
+        for(Score score : availableScoreChoices) {
+            int thisScore = calcScore(score);
+            if(thisScore > bestScore) {
+                bestScore = thisScore;
+                mBestScoreChoice = score;
+                bestScoreDiceCombos = new ArrayList<>(countedDiceCombos);
+            }
+        }
+        return bestScore;
     }
 
+
+    /**
+     * Returns the best score choice. calcBestScoreChoice has to be run before this method
+     * @return
+     */
+    Score getBestScoreChoice() {
+        Log.d("-", "--------------------------------------");
+        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
+        return mBestScoreChoice;
+    }
 
     //TODO implementation av low
     //TODO ta bort alternativ som använts
     //TODO mer buggtestning av poängräkning
     //TODO visa tärningskombinationer som användes för poängräkning
     //TODO (användarvänlight) när allt funkar - rekommenderat val. beräkna roundscore för alla poängräkningar och föreslå det bästa
-    int calcScore(Score chosenScore) {
+    int calcScore(Score scoreChoice) {
+        mChosenScore = scoreChoice;
         Collections.sort(dice, (d1, d2) -> d1.getValue() > d2.getValue() ? -1 : 1);
 
-        tempRoundScore = 0;
+        mTempRoundScore = 0;
         countedDice = new ArrayList<>();
         countedDiceCombos = new ArrayList<>();
 
         for(int i = 0; i < dice.size(); i ++) {
             diceUsedForThisCalc = new ArrayList<>();
-            if(!countedDice.contains(dice.get(i)) && dice.get(i).getValue() <= chosenScore.getValue()) {
+            if(!countedDice.contains(dice.get(i)) && dice.get(i).getValue() <= scoreChoice.getValue()) {
                 diceUsedForThisCalc.add(dice.get(i));
-                doRecursiveCalc(dice.get(i), 0, dice.get(i).getValue(), chosenScore.getValue());
+                doRecursiveCalc(dice.get(i), 0, dice.get(i).getValue(), scoreChoice.getValue());
             }
         }
 
-        Log.d(TAG, "round score for "+ chosenScore + "(" + chosenScore.getValue() + "): " + tempRoundScore + " through " + countedDiceCombos.toString());
+        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundScore + " through " + countedDiceCombos.toString());
 
-        return tempRoundScore;
+        return mTempRoundScore;
+    }
+
+    ArrayList<Score> getAvailableScoreChoices() {
+        return availableScoreChoices;
     }
 
 
     private void doRecursiveCalc(Die baseDie, int i, int score, final int CHOSEN_SCORE) {
         if(score == CHOSEN_SCORE) {
-            tempRoundScore += score;
+            mTempRoundScore += score;
             countedDice.addAll(diceUsedForThisCalc);
             countedDiceCombos.add(diceUsedForThisCalc);
             return;
