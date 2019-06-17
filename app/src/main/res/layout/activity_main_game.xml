@@ -78,8 +78,8 @@
             android:id="@+id/score_dropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/score_choices"
             android:visibility="invisible" />
+        <!--android:entries="@array/score_choices"-->
 
         <TextView
             android:id="@+id/notification_text"

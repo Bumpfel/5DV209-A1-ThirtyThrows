@@ -8,20 +8,20 @@
     <string name="total_score">Total Score %1$d</string>
     <string name="round_nr">Round #%1$d</string>
     <string name="new_round">Roll to start the next round</string>
-    <string name="present_score_option">%1$s gives you a currentRound score of %2$d</string>
+    <string name="present_score_option">%1$s gives you a round score of %2$d</string>
 
-    <string-array name="score_choices">
-        <item>LOW</item>
-        <item>FOUR</item>
-        <item>FIVE</item>
-        <item>SIX</item>
-        <item>SEVEN</item>
-        <item>EIGHT</item>
-        <item>NINE</item>
-        <item>TEN</item>
-        <item>ELEVEN</item>
-        <item>TWELVE</item>
-    </string-array>
+    <!--<string-array name="score_choices">-->
+        <!--<item>LOW</item>-->
+        <!--<item>FOUR</item>-->
+        <!--<item>FIVE</item>-->
+        <!--<item>SIX</item>-->
+        <!--<item>SEVEN</item>-->
+        <!--<item>EIGHT</item>-->
+        <!--<item>NINE</item>-->
+        <!--<item>TEN</item>-->
+        <!--<item>ELEVEN</item>-->
+        <!--<item>TWELVE</item>-->
+    <!--</string-array>-->
 
     <string name="score_confirmation">Use choice</string>
 

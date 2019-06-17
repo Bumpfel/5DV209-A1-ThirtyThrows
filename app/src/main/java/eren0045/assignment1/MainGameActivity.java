@@ -7,16 +7,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainGameActivity extends AppCompatActivity {
+
+    private ArrayList<Score> mScoreChoices;
+    private ArrayAdapter<Score> mSpinnerAdapter;
 
     private ImageButton mDieButton1;
     private ImageButton mDieButton2;
@@ -29,15 +34,15 @@ public class MainGameActivity extends AppCompatActivity {
     private TextView mNotificationText;
     private Button mRollButton;
     private Button mRestartButton;
-    private Spinner mScoreChoice;
+    private Spinner mScoreChoiceDropdown;
     private Button mScoreConfirmationButton;
     private TextView mRoundNrText;
     private TextView mTotalScoreText;
 
-    private DiceGame game = new DiceGame();
-    private Map<ImageButton, Die> dice = new HashMap<>();
-    private int tempRoundScore = 0;
-    private Score chosenScore;
+    private DiceGame mGame = new DiceGame();
+    private Map<ImageButton, Die> mDice = new HashMap<>();
+    private int mTempRoundScore = 0;
+    private Score mChosenScore;
 
     private enum STATE {CURRENT_ROLL, NOTIFICATION }
 
@@ -72,24 +77,27 @@ public class MainGameActivity extends AppCompatActivity {
         mRollButton.setOnClickListener(view -> startRound());
 
         mRestartButton = findViewById(R.id.restart_button);
-        mRestartButton.setOnClickListener(view -> game.resetGame());
+        mRestartButton.setOnClickListener(view -> resetGame());
 
-        mScoreChoice = findViewById(R.id.score_dropdown);
-        mScoreChoice.setOnItemSelectedListener(
+        mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
+        mScoreChoices = new ArrayList<Score>(Arrays.asList(Score.values()));
+        mSpinnerAdapter = new ArrayAdapter<Score>(this, android.R.layout.simple_spinner_dropdown_item, mScoreChoices);
+        mScoreChoiceDropdown.setAdapter(mSpinnerAdapter);
+        //TODO score ska beräknas direkt när rundan är slut med den "valda", eller aktiva, poängräkningen
+        mScoreChoiceDropdown.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
-                   @Override
-                   public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                       chosenScore = Score.valueOf("" + mScoreChoice.getSelectedItem());
-                       tempRoundScore = game.calcScore(chosenScore.getValue());
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) { //TODO måste ta bort alternativ när det valts en gång. Även ur automatiska poängräkningen i modellen.
+                        mChosenScore = Score.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
+                        mTempRoundScore = mGame.calcScore(mChosenScore);
 
-                       mNotificationText.setText(getString(R.string.present_score_option, chosenScore, tempRoundScore));
-                   }
+                        mNotificationText.setText(getString(R.string.present_score_option, mChosenScore, mTempRoundScore));
+                    }
 
-                   @Override
-                   public void onNothingSelected(AdapterView<?> adapterView) {
-
-                   }
-               }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+                    }
+                }
         );
         mScoreConfirmationButton = findViewById(R.id.score_confirmation_button);
         mScoreConfirmationButton.setOnClickListener(view -> useScore());
@@ -104,25 +112,25 @@ public class MainGameActivity extends AppCompatActivity {
         Log.d(TAG, "onRestoreInstanceState() called");
         super.onRestoreInstanceState(state);
 
-        dice.put(mDieButton1, state.getParcelable("" + mDieButton1.getId()));
-        dice.put(mDieButton2, state.getParcelable("" + mDieButton2.getId()));
-        dice.put(mDieButton3, state.getParcelable("" + mDieButton3.getId()));
-        dice.put(mDieButton4, state.getParcelable("" + mDieButton4.getId()));
-        dice.put(mDieButton5, state.getParcelable("" + mDieButton5.getId()));
-        dice.put(mDieButton6, state.getParcelable("" + mDieButton6.getId()));
+        mDice.put(mDieButton1, state.getParcelable("" + mDieButton1.getId()));
+        mDice.put(mDieButton2, state.getParcelable("" + mDieButton2.getId()));
+        mDice.put(mDieButton3, state.getParcelable("" + mDieButton3.getId()));
+        mDice.put(mDieButton4, state.getParcelable("" + mDieButton4.getId()));
+        mDice.put(mDieButton5, state.getParcelable("" + mDieButton5.getId()));
+        mDice.put(mDieButton6, state.getParcelable("" + mDieButton6.getId()));
 
 //        currentRoll = state.getInt(STATE.CURRENT_ROLL.toString());
 
-        game = state.getParcelable("game");
+        mGame = state.getParcelable("mGame");
 
-        for(ImageButton dieButton : dice.keySet()) {
+        for(ImageButton dieButton : mDice.keySet()) {
             updateDieButtonImage(dieButton);
 
-            if(game.getRollsLeft() == 0)
+            if(mGame.getRollsLeft() == 0)
                 dieButton.setEnabled(false);
         }
 
-        if(game.getRollsLeft() == 0)
+        if(mGame.getRollsLeft() == 0)
             mRollButton.setEnabled(false);
         else
             mRollButton.setEnabled(true);
@@ -140,43 +148,44 @@ public class MainGameActivity extends AppCompatActivity {
         //state.putInt(STATE.NOTIFICATION.toString(), mNotificationText.getId());
         state.putString(STATE.NOTIFICATION.toString(), mNotificationText.getText().toString());
 
-        state.putParcelable("game", game);
-        for(ImageButton dieButton : dice.keySet()) {
-            state.putParcelable("" + dieButton.getId(), dice.get(dieButton));
+        state.putParcelable("mGame", mGame);
+        for(ImageButton dieButton : mDice.keySet()) {
+            state.putParcelable("" + dieButton.getId(), mDice.get(dieButton));
         }
 
         super.onSaveInstanceState(state);
     }
 
-//    private void resetGame() {
-//        currentRound = 0;
-//        totalScore = 0;
-//        roundScore = new int[MAX_ROUNDS];
-//
-//        newRound();
-//    }
+    private void resetGame() {
+        mGame.resetGame();
+        mTotalScoreText.setText(null);
+        mScoreChoices = new ArrayList<Score>(Arrays.asList(Score.values())); //TODO code dupliation
+        mSpinnerAdapter.notifyDataSetChanged();
+        //        mSpinnerAdapter = new ArrayAdapter<Score>(this, android.R.layout.simple_spinner_dropdown_item, mScoreChoices);
+        startRound();
+    }
 
     private void startRound() {
-        game.newRound();
+        mGame.newRound();
         mNotificationText.setText(null);
 
-        dice.clear();
-        ArrayList<Die> dieArray = game.getDice();
+        mDice.clear();
+        ArrayList<Die> dieArray = mGame.getDice();
 //       //associate buttons with a java die object
         for(int i = 0; i < 6; i ++) {
-            dice.put(dieButtons[i], dieArray.get(i));
+            mDice.put(dieButtons[i], dieArray.get(i));
         }
-//        dice.put(mDieButton1, dieArray[0]);
-//        dice.put(mDieButton2, dieArray[1]);
-//        dice.put(mDieButton3, dieArray[2]);
-//        dice.put(mDieButton4, dieArray[3]);
-//        dice.put(mDieButton5, dieArray[4]);
-//        dice.put(mDieButton6, dieArray[5]);
+//        mDice.put(mDieButton1, dieArray[0]);
+//        mDice.put(mDieButton2, dieArray[1]);
+//        mDice.put(mDieButton3, dieArray[2]);
+//        mDice.put(mDieButton4, dieArray[3]);
+//        mDice.put(mDieButton5, dieArray[4]);
+//        mDice.put(mDieButton6, dieArray[5]);
 
-        mRoundNrText.setText(getString(R.string.round_nr, game.getCurrentRound()));
+        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
 
         // enable die buttons and update their images
-        for(ImageButton dieButton : dice.keySet()) {
+        for(ImageButton dieButton : mDice.keySet()) {
             dieButton.setEnabled(true);
             updateDieButtonImage(dieButton);
         }
@@ -188,7 +197,7 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     private void toggleDie(ImageButton dieButton) {
-        Die thisDie = dice.get(dieButton);
+        Die thisDie = mDice.get(dieButton);
 
         if(thisDie != null) {
             thisDie.toggleDie();
@@ -197,42 +206,33 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
 
-    private void updateDieButtonImage(ImageButton dieButton) {
-        Die thisDie = dice.get(dieButton);
-
-        int imgId;
-        int dieValue = thisDie.getValue();
-        if(thisDie.isEnabled())
-            imgId = activeDiceImages[dieValue];
-        else
-            imgId = inactiveDiceImages[dieValue];
-
-        dieButton.setImageDrawable(getResources().getDrawable(imgId));
-    }
-
     private void rollDice() {
         // Round not over
-        game.rollDice();
+        mGame.rollDice();
 
-        if(!game.isRoundOver()) {
-            for(ImageButton dieButton : dice.keySet()) {
-                Die thisDie = dice.get(dieButton);
-                if(thisDie.isEnabled()) {
-                    int imgId = activeDiceImages[thisDie.getValue()];
-                    dieButton.setImageDrawable(getResources().getDrawable(imgId));
-                }
-            }
+//        if(!mGame.isRoundOver()) {
+//            for(ImageButton dieButton : mDice.keySet()) {
+//                Die thisDie = mDice.get(dieButton);
+//                if(thisDie.isEnabled()) {
+//                    int imgId = activeDiceImages[thisDie.getValue()];
+//                    dieButton.setImageDrawable(getResources().getDrawable(imgId));
+//                }
+//            }
+//        }
+//        // Round ended
+//        if(mGame.isRoundOver()) {
+//            for(ImageButton dieButton : mDice.keySet()) {
+//                int imgId = finishedDiceImages[mDice.get(dieButton).getValue()];
+//                dieButton.setImageDrawable(getResources().getDrawable(imgId));
+//                dieButton.setEnabled(false);
+//            }
+        for(ImageButton dieButton : mDice.keySet()) {
+            updateDieButtonImage(dieButton);
         }
-        // Round ended
-        if(game.isRoundOver()) {
-            for(ImageButton dieButton : dice.keySet()) {
-                int imgId = finishedDiceImages[dice.get(dieButton).getValue()];
-                dieButton.setImageDrawable(getResources().getDrawable(imgId));
-                dieButton.setEnabled(false);
-            }
-//            mRollButton.setEnabled(false);
+
+        if(mGame.isRoundOver()) {
             mRollButton.setVisibility(View.GONE);
-            mScoreChoice.setVisibility(View.VISIBLE);
+            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
             mNotificationText.setText(getString(R.string.round_over_text));
         }
@@ -242,16 +242,16 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     private void useScore() {
-        mScoreChoice.setVisibility(View.INVISIBLE);
+        mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
         mScoreConfirmationButton.setVisibility(View.GONE);
-        game.setScore(chosenScore);
-//        totalScore += tempRoundScore;
-//        roundScore[currentRound] = tempRoundScore;
+        mGame.setScore();
+//        totalScore += mTempRoundScore;
+//        roundScore[currentRound] = mTempRoundScore;
 //        currentRound++;
 
-        mTotalScoreText.setText(getString(R.string.total_score, game.getTotalScore()));
+        mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalScore()));
 
-        if(game.isOver())
+        if(mGame.isOver())
             startActivity(new Intent(this, ScoreActivity.class));
         else {
             mNotificationText.setText(R.string.new_round);
@@ -261,11 +261,33 @@ public class MainGameActivity extends AppCompatActivity {
             mRollButton.setOnClickListener(view -> startRound());
         }
 
+        int pos = mScoreChoiceDropdown.getSelectedItemPosition();
+        mScoreChoices.remove(pos);
+        mSpinnerAdapter.notifyDataSetChanged();
+    }
+
+
+    private void updateDieButtonImage(ImageButton dieButton) {
+        Die thisDie = mDice.get(dieButton);
+
+        int imgId;
+        int dieValue = thisDie.getValue();
+        if(mGame.isRoundOver()) {
+            imgId = finishedDiceImages[dieValue];
+        }
+        else {
+            if(thisDie.isEnabled())
+                imgId = activeDiceImages[dieValue];
+            else
+                imgId = inactiveDiceImages[dieValue];
+        }
+
+        dieButton.setImageDrawable(getResources().getDrawable(imgId));
     }
 
 
     private void updateRollButtonText() {
-        String rollText = getString(R.string.roll_button, game.getRollsLeft());
+        String rollText = getString(R.string.roll_button, mGame.getRollsLeft());
         mRollButton.setText(rollText);
     }
 }

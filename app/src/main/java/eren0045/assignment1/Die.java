@@ -16,6 +16,10 @@ class Die implements Parcelable {
         rollDie();
     }
 
+    void setDie(int n) { // TODO for debugging
+        value = n;
+    }
+
     void rollDie() {
         value = random.nextInt(6) + 1;
     }

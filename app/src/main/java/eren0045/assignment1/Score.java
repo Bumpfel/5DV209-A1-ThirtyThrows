@@ -2,7 +2,7 @@ package eren0045.assignment1;
 
 public enum Score {
 
-    LOW(1/2/3),
+    LOW(3/2/1),
     FOUR(4),
     FIVE(5),
     SIX(6),
