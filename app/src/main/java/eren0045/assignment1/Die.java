@@ -13,10 +13,10 @@ class Die implements Parcelable {
     private boolean counted = false;
 
     public Die() {
-        throwDie();
+        rollDie();
     }
 
-    public void throwDie() {
+    void rollDie() {
         value = random.nextInt(6) + 1;
     }
 
@@ -32,16 +32,21 @@ class Die implements Parcelable {
         return value;
     }
 
-    public boolean isCounted() {
-        return counted;
+
+    public String toString() {
+        return "" + value;
     }
+//    public boolean isCounted() {
+//        return counted;
+//    }
+//
+//    public void setCounted() {
+//        counted = true;
+//    }
 
-    public void setCounted() {
-        counted = true;
-    }
-
-
-    //Parcelable stuff
+    /* **************** */
+    /* Parcelable stuff */
+    /* **************** */
     private int mData;
 
     // used to write object to Parcel
