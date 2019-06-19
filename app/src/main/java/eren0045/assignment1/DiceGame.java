@@ -21,7 +21,7 @@ public class DiceGame implements Parcelable {
     private boolean isStarted = false;
     private int mRollsLeft;
     private int mCurrentRound;
-    private int[] mRoundScore = new int[MAX_ROUNDS];
+    private int[] mRoundScores = new int[MAX_ROUNDS];
     private Score[] mRoundScoreChoices = new Score[MAX_ROUNDS];
     private int mTotalScore;
     private int mTempRoundScore;
@@ -136,7 +136,7 @@ public class DiceGame implements Parcelable {
      */
     public void setScore() {
         mTotalScore += mTempRoundScore;
-        mRoundScore[mCurrentRound] = mTempRoundScore;
+        mRoundScores[mCurrentRound] = mTempRoundScore;
         mRoundScoreChoices[mCurrentRound] = mChosenScore;
         boolean removed = mAvailableScoreChoices.remove(mChosenScore);
         mCurrentRound++;
@@ -241,7 +241,7 @@ public class DiceGame implements Parcelable {
             }
         }
 
-        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundScore + " through " + mCountedDiceCombos.toString());
+//        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundScore + " through " + mCountedDiceCombos.toString());
 
         return mTempRoundScore;
     }
@@ -272,6 +272,15 @@ public class DiceGame implements Parcelable {
         }
 
         doRecursiveCalc(baseDie, ++ i, score, CHOSEN_SCORE);
+    }
+
+
+    int[] getRoundScores() {
+        return mRoundScores;
+    }
+
+    Score[] getRoundScoreChoices() {
+        return mRoundScoreChoices;
     }
 
 

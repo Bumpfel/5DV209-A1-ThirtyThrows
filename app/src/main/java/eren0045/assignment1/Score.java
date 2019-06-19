@@ -1,7 +1,6 @@
 package eren0045.assignment1;
 
 public enum Score {
-
     LOW(0),
     FOUR(4),
     FIVE(5),

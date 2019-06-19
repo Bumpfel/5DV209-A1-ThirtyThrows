@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,13 +54,18 @@ public class MainGameActivity extends AppCompatActivity {
     private int[] finishedDiceImages = { 0, R.drawable.red1, R.drawable.red2, R.drawable.red3, R.drawable.red4, R.drawable.red5, R.drawable.red6 };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-//        Log.d(TAG, "onCreate() called");
+    protected void onCreate(Bundle savedState) {
+        Log.d(TAG, "onCreate() called");
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedState);
         setContentView(R.layout.activity_main_game);
 
-        initialize();
+        if(savedState == null)
+            initialize();
+//        else {
+//            initialize(); //TODO not perfect...
+//            restoreGame(savedState);
+//        }
     }
 
     private void initialize() {
@@ -87,7 +94,9 @@ public class MainGameActivity extends AppCompatActivity {
 
         // Action for reset button
         mResetButton = findViewById(R.id.reset_button);
-        mResetButton.setOnClickListener(view -> resetGame());
+        mResetButton.setOnClickListener(view -> {
+            finish();
+        });
         mResetButton.setVisibility(View.INVISIBLE);
 
         // Populate and set action for score choice dropdown
@@ -133,20 +142,59 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onRestoreInstanceState(Bundle state) { // TODO out of date
-        Log.d(TAG, "onRestoreInstanceState() called");
-        super.onRestoreInstanceState(state);
+    protected void onStart() {
+        super.onStart();
 
-        mDice.put(mDieButton1, state.getParcelable("" + mDieButton1.getId()));
-        mDice.put(mDieButton2, state.getParcelable("" + mDieButton2.getId()));
-        mDice.put(mDieButton3, state.getParcelable("" + mDieButton3.getId()));
-        mDice.put(mDieButton4, state.getParcelable("" + mDieButton4.getId()));
-        mDice.put(mDieButton5, state.getParcelable("" + mDieButton5.getId()));
-        mDice.put(mDieButton6, state.getParcelable("" + mDieButton6.getId()));
+
+        Log.d(TAG, "onStart() called");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause() called");
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop() called");
+    }
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart() called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy() called");
+    }
+
+
+
+
+//    @Override
+    protected void onRestoreInstanceState(Bundle savedState) { // TODO out of date
+//    private void restoreGame(Bundle savedState) {
+        Log.d(TAG, "onRestoreInstanceState() called");
+        super.onRestoreInstanceState(savedState);
+
+        mDice.put(mDieButton1, savedState.getParcelable("" + mDieButton1.getId()));
+        mDice.put(mDieButton2, savedState.getParcelable("" + mDieButton2.getId()));
+        mDice.put(mDieButton3, savedState.getParcelable("" + mDieButton3.getId()));
+        mDice.put(mDieButton4, savedState.getParcelable("" + mDieButton4.getId()));
+        mDice.put(mDieButton5, savedState.getParcelable("" + mDieButton5.getId()));
+        mDice.put(mDieButton6, savedState.getParcelable("" + mDieButton6.getId()));
 
 //        currentRoll = state.getInt(STATE.CURRENT_ROLL.toString());
 
-        mGame = state.getParcelable("mGame");
+        mGame = savedState.getParcelable("mGame");
+//        Log.d("___Main.onRestore", "" + mGame.getTotalScore());
 
         for(ImageButton dieButton : mDice.keySet()) {
             updateDieButtonImage(dieButton);
@@ -162,13 +210,13 @@ public class MainGameActivity extends AppCompatActivity {
 
         this.updateRollButtonText();
 
-        mNotificationText.setText(state.getString(STATE.NOTIFICATION.toString()));
+        mNotificationText.setText(savedState.getString(STATE.NOTIFICATION.toString()));
     }
 
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
-//        Log.d(TAG, "onSaveInstanceState() called");
+        Log.d(TAG, "onSaveInstanceState() called");
 //        state.putInt(STATE.CURRENT_ROLL.toString(), currentRoll);
         //state.putInt(STATE.NOTIFICATION.toString(), mNotificationText.getId());
         state.putString(STATE.NOTIFICATION.toString(), mNotificationText.getText().toString());
@@ -256,23 +304,38 @@ public class MainGameActivity extends AppCompatActivity {
 
         mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalScore()));
 
-        if(mGame.isOver())
-            startActivity(new Intent(this, ScoreActivity.class));
+        // TODO temp
+
+//        Intent scoreScreen = new Intent(this, ScoreActivity.class);
+//        scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
+//        scoreScreen.putExtra(ScoreActivity.Extras.TOTAL_SCORE.toString(), mGame.getTotalScore());
+//        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORES.toString(), mGame.getRoundScores());
+//        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORE_CHOICES.toString(), mGame.getRoundScoreChoices());
+//        startActivity(scoreScreen);
+
+        prepareNextRound();
+    }
+
+
+    private void prepareNextRound() {
+        if(mGame.isOver()) {
+            Intent scoreScreen = new Intent(this, ScoreActivity.class);
+            scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
+            startActivity(scoreScreen);
+        }
         else {
             mScoreChoiceText.setText(R.string.available_score_choices);
             mNotificationText.setText(R.string.new_round);
-//            mRollButton.setEnabled(true);
             mRollButton.setVisibility(View.VISIBLE);
-            mRollButton.setText("Roll!");
+            mRollButton.setText(R.string.roll);
             mRollButton.setOnClickListener(view -> startRound());
+
+            mScoreChoices = mGame.getAvailableScoreChoices();
+            mSpinnerAdapter.clear();
+            mSpinnerAdapter.addAll(mScoreChoices);
+            mSpinnerAdapter.notifyDataSetChanged();
         }
-
-        mScoreChoices = mGame.getAvailableScoreChoices();
-        mSpinnerAdapter.clear();
-        mSpinnerAdapter.addAll(mScoreChoices);
-        mSpinnerAdapter.notifyDataSetChanged();
     }
-
 
     private void updateDieButtonImage(ImageButton dieButton) {
         Die thisDie = mDice.get(dieButton);

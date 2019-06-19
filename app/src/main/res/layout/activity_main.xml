@@ -4,40 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".ScoreActivity">
+    android:background="@color/backgroundColourWhite"
+    tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical">
 
+        <ImageView
+            android:id="@+id/start_screen_image"
+            android:layout_width="310dp"
+            android:layout_height="283dp"
+            app:srcCompat="@drawable/dice" />
+
         <TextView
             android:id="@+id/header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Results"
-            android:textSize="24sp" />
+            android:text="@string/app_name"
+            android:textSize="36sp"
+            app:fontFamily="@font/alfa_slab_one" />
 
-        <TextView
-            android:id="@+id/points_textview"
+        <Button
+            android:id="@+id/start_game_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Points" />
-
-        <TextView
-            android:id="@+id/round_scores"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="round scores" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="horizontal">
+            android:text="@string/start_game"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
