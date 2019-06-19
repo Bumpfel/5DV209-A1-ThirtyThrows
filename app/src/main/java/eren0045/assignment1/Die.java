@@ -10,29 +10,33 @@ class Die implements Parcelable {
     private int value = 0;
     private Random random = new Random();
     private boolean enabled = true;
-    private boolean counted = false;
 
-    public Die() {
-        rollDie();
+    Die() {
+        roll();
     }
 
     void setDie(int n) { // TODO for debugging
         value = n;
-    }
+    } //TODO temp
 
-    void rollDie() {
+    void roll() {
         value = random.nextInt(6) + 1;
     }
 
-    public void toggleDie() {
+    void reset() {
+        enabled = true;
+        roll();
+    }
+
+    void toggleDie() {
         enabled = !enabled;
     }
 
-    public boolean isEnabled() {
+    boolean isEnabled() {
         return enabled;
     }
 
-    public int getValue() {
+    int getValue() {
         return value;
     }
 

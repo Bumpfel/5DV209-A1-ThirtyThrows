@@ -2,7 +2,7 @@ package eren0045.assignment1;
 
 public enum Score {
 
-    LOW(1, 2, 3),
+    LOW(0),
     FOUR(4),
     FIVE(5),
     SIX(6),
@@ -15,14 +15,9 @@ public enum Score {
     ;
 
     private int value;
-    private int[] values;
 
     Score(int n) {
         value = n;
-    }
-
-    Score(int...n) {
-        values = n;
     }
 
     public int getValue() {
