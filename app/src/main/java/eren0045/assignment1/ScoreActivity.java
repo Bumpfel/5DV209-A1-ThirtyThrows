@@ -5,13 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
-
-import java.util.Arrays;
 
 public class ScoreActivity extends AppCompatActivity {
 
-    enum Extras { GAME, TOTAL_SCORE, ROUND_SCORES, ROUND_SCORE_CHOICES }
+    enum Extras { GAME }
 
     private DiceGame mGame;
     private TextView mPointsText;
@@ -28,22 +27,39 @@ public class ScoreActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mGame = intent.getParcelableExtra(Extras.GAME.toString());
 
-        mPointsText = findViewById(R.id.points_textview);
+        // total score
+        mPointsText = findViewById(R.id.total_points_textview);
         mPointsText.setText("You got a total score of " + mGame.getTotalPoints());
 
-        TextView roundPointsText = findViewById(R.id.round_points);
-        roundPointsText.setText(Arrays.toString(mGame.getRoundScores()));
+        // Score data
+        TextView roundsText = findViewById(R.id.rounds_textview);
+        TextView roundPointsText = findViewById(R.id.round_points_textview);
+        TextView roundScoreChoicesText = findViewById(R.id.round_score_choices_textview);
 
-        TextView roundScoreChoicesText = findViewById(R.id.round_points);
-        roundScoreChoicesText.setText(Arrays.toString(mGame.getRoundScoreChoices()));
+        int[] roundPoints = mGame.getRoundPoints();
+        String[] roundScoreChoices = mGame.getRoundScoreChoices();
+
+        StringBuilder rounds = new StringBuilder();
+        StringBuilder formattedPoints = new StringBuilder();
+        StringBuilder formattedScoreChoices = new StringBuilder();
+        for (int i = 0; i < roundPoints.length; i ++) {
+            rounds.append("Round " + (i + 1) + "\n");
+            formattedPoints.append(roundPoints[i] + "\n");
+            formattedScoreChoices.append(roundScoreChoices[i] + "\n");
+        }
+
+        roundsText.setText(rounds.toString());
+        roundPointsText.setText(formattedPoints.toString());
+        roundScoreChoicesText.setText(formattedScoreChoices.toString());
+
+        //
+        Button startNewGameButton = findViewById(R.id.start_new_game_button);
+        startNewGameButton.setOnClickListener(view -> {
+            startActivity(new Intent(ScoreActivity.this, MainGameActivity.class));
+            finish();
+        });
+
     }
 
 
-
-
-//    static Intent makeIntent(Context context, DiceGame game) {
-//        Intent scoreScreen = new Intent(context, ScoreActivity.class);
-//        scoreScreen.putExtra(Extras.GAME.toString(), game);
-//        return scoreScreen;
-//    }
 }

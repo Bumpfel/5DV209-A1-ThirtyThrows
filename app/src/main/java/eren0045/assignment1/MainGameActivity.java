@@ -299,9 +299,6 @@ public class MainGameActivity extends AppCompatActivity {
 
 //        Intent scoreScreen = new Intent(this, ScoreActivity.class);
 //        scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
-//        scoreScreen.putExtra(ScoreActivity.Extras.TOTAL_SCORE.toString(), mGame.getTotalPoints());
-//        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORES.toString(), mGame.getRoundScores());
-//        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORE_CHOICES.toString(), mGame.getRoundScoreChoices());
 //        startActivity(scoreScreen);
 //        finish();
 

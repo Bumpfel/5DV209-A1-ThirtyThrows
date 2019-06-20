@@ -43,8 +43,6 @@ public class DiceGame implements Parcelable {
             mDice.add(new Die());
         }
 
-        Log.e(TAG, "Created game through empty constructor");
-
         // sorting list to enable the auto-score method to check the higher choices before the lower
         // (thinking generally the higher score choices are less useful than lower scores and should therefore be used first)
         mAvailableScoreChoices = new ArrayList<>(Arrays.asList(ScoreChoice.values()));
@@ -294,7 +292,7 @@ public class DiceGame implements Parcelable {
     }
 
 
-    int[] getRoundScores() {
+    int[] getRoundPoints() {
         return mRoundPoints;
     }
 

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Thirty Throws</string>
     <string name="start_game">Start Game</string>
+    <string name="start_new_game">Start New Game</string>
     <string name="how_to_play">How to Play</string>
     <string name="roll_button">Roll (%1$d)</string>
     <string name="roll">Roll!</string>
