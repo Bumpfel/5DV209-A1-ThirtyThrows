@@ -27,10 +27,10 @@
             android:text="Points" />
 
         <TextView
-            android:id="@+id/round_scores"
+            android:id="@+id/round_points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="round scores" />
+            android:text="round points" />
     </LinearLayout>
 
     <LinearLayout

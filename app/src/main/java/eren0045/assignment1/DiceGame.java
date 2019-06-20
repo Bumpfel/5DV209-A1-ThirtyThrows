@@ -27,7 +27,7 @@ public class DiceGame implements Parcelable {
 
     // Used to store scoring records
     private int[] mRoundPoints = new int[MAX_ROUNDS];
-    private ScoreChoice[] mRoundScoreChoices = new ScoreChoice[MAX_ROUNDS];
+    private String[] mRoundScoreChoices = new String[MAX_ROUNDS];
 
     // Used for score calculations
     private ArrayList<Die> mDiceUsedForThisCalc;
@@ -43,10 +43,21 @@ public class DiceGame implements Parcelable {
             mDice.add(new Die());
         }
 
+        Log.e(TAG, "Created game through empty constructor");
+
         // sorting list to enable the auto-score method to check the higher choices before the lower
         // (thinking generally the higher score choices are less useful than lower scores and should therefore be used first)
         mAvailableScoreChoices = new ArrayList<>(Arrays.asList(ScoreChoice.values()));
         Collections.reverse(mAvailableScoreChoices);
+    }
+
+    //TODO temp
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("currentRound" + mCurrentRound);
+        str.append(", totalPoints" + mTotalPoints);
+        return str.toString();
     }
 
     /**
@@ -55,8 +66,9 @@ public class DiceGame implements Parcelable {
      */
     public void newRound() throws IllegalMethodCallException {
         if(isRoundOver()) {
+            mCurrentRound++;
             mIsStarted = true;
-            mRollsLeft = MAX_ROLLS - 1; // TODO (något osnyggt att ha -1)
+            mRollsLeft = MAX_ROLLS - 1;
             resetDice();
         }
         else
@@ -123,11 +135,15 @@ public class DiceGame implements Parcelable {
         return mIsStarted;
     }
 
-    public boolean isRoundOver() { // TODO not sure if this needs to be public
+    public boolean isRoundOver() {
         return mRollsLeft == 0;
     }
 
-    public boolean isOver() { // TODO not sure if this needs to be public
+    public boolean isRoundScored() {
+        return mAvailableScoreChoices.size() == (MAX_ROUNDS - mCurrentRound);
+    }
+
+    public boolean isOver() {
         return mCurrentRound == MAX_ROUNDS;
     }
 
@@ -137,12 +153,11 @@ public class DiceGame implements Parcelable {
     public void setScore() {
 //        if(mRoundPoints[mCurrentRound] == 0)
         mTotalPoints += mTempRoundPoints;
-        mRoundPoints[mCurrentRound] = mTempRoundPoints;
-        mRoundScoreChoices[mCurrentRound] = mScoreChoice;
+        mRoundPoints[mCurrentRound - 1] = mTempRoundPoints;
+        mRoundScoreChoices[mCurrentRound - 1] = mScoreChoice.toString();
         mAvailableScoreChoices.remove(mScoreChoice);
 //        Log.d(TAG, mAvailableScoreChoices.toString());
         Log.e(TAG,  mScoreChoice + " removed");
-        mCurrentRound++;
 //        Log.d("-", "==============================================");
 //        Log.d("-", "Round " + mCurrentRound);
 //        Log.d("-", "==============================================");
@@ -163,7 +178,7 @@ public class DiceGame implements Parcelable {
      * Returns the best score choice. getPoints has to be run before this method
      * @return
      */
-    public ScoreChoice getBestScoreChoice() {
+    public ScoreChoice getBestScoreChoice() { //TODO dålig implementation att tvinga användaren att köra getPoints innan getBestScoreChoice. skulle kunna köra getPoints först i denna metod, men onödigt
 //        Log.d("-", "--------------------------------------");
 //        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
         return mBestScoreChoice;
@@ -212,8 +227,8 @@ public class DiceGame implements Parcelable {
 
 
 
+    //TODO behöver nog göra om lite hur poängen sparas. känns som ett bättre sätt att returnera värden istället för att spara allt i globala variabler. särskilt eftersom spinner.setSelection buggar ibland
     //TODO mer buggtestning av poängräkning
-    //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
     public int getPoints(ScoreChoice scoreChoice) {
         mScoreChoice = scoreChoice;
         Collections.sort(mDice, (d1, d2) -> d1.getValue() > d2.getValue() ? -1 : 1);
@@ -283,7 +298,7 @@ public class DiceGame implements Parcelable {
         return mRoundPoints;
     }
 
-    ScoreChoice[] getRoundScoreChoices() {
+    String[] getRoundScoreChoices() {
         return mRoundScoreChoices;
     }
 
@@ -291,17 +306,20 @@ public class DiceGame implements Parcelable {
     /* **************** */
     /* Parcelable stuff */
     /* **************** */
-    private int mData;
 
     // used to write object to Parcel
     @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(mData);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mTotalPoints);
+        dest.writeIntArray(mRoundPoints);
+        dest.writeStringArray(mRoundScoreChoices);
     }
 
     // constructor used by Creator
     private DiceGame(Parcel in) {
-        mData = in.readInt();
+        mTotalPoints = in.readInt();
+        mRoundPoints = in.createIntArray();
+        mRoundScoreChoices = in.createStringArray();
     }
 
     // used to restore object from parcel

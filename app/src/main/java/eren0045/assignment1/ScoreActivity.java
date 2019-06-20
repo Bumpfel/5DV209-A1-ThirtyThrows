@@ -2,7 +2,6 @@ package eren0045.assignment1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,26 +25,17 @@ public class ScoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score);
 
-
         Intent intent = getIntent();
         mGame = intent.getParcelableExtra(Extras.GAME.toString());
 
-        int totalScore = intent.getIntExtra(Extras.TOTAL_SCORE.toString(), 0);
-        int[] roundScores = intent.getIntArrayExtra(Extras.ROUND_SCORES.toString());
-//        ScoreChoice[] roundScoreChoices = intent.getStringArrayExtra(Extras.ROUND_SCORE_CHOICES.toString());
-
         mPointsText = findViewById(R.id.points_textview);
-//        mPointsText.setText("You got a total score of " + mGame.getTotalPoints());
-        mPointsText.setText("You got a total score of " + totalScore);
+        mPointsText.setText("You got a total score of " + mGame.getTotalPoints());
 
-        TextView roundScoresText = findViewById(R.id.round_scores);
-        roundScoresText.setText(roundScores.toString());
+        TextView roundPointsText = findViewById(R.id.round_points);
+        roundPointsText.setText(Arrays.toString(mGame.getRoundScores()));
 
-        TextView roundScoreChoicesText = findViewById(R.id.round_scores);
-//        roundScoreChoicesText.setText(roundScoreChoices.toString()); //TODO broken
-
-        Log.d(TAG, Arrays.toString(mGame.getRoundScores()));
-        Log.d(TAG, Arrays.toString(mGame.getRoundScoreChoices()));
+        TextView roundScoreChoicesText = findViewById(R.id.round_points);
+        roundScoreChoicesText.setText(Arrays.toString(mGame.getRoundScoreChoices()));
     }
 
 

@@ -43,7 +43,7 @@ public class MainGameActivity extends AppCompatActivity {
     private Map<ImageButton, Die> mDice = new HashMap<>();
     private ScoreChoice mChosenScore;
 
-    private enum STATE {CURRENT_ROLL, NOTIFICATION }
+    private enum STATE { GAME, NOTIFICATION }
 
     private static final String TAG = "---MainGameActivity---";
 
@@ -152,10 +152,8 @@ public class MainGameActivity extends AppCompatActivity {
                             mChosenScore = ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
 //                            ArrayList<ArrayList<Die>> countedDice = mGame.getCountedDice(mChosenScore);
                             mScoreChoiceText.setText(getString(R.string.present_score_option, mChosenScore, mGame.getPoints(mChosenScore))); //, countedDice.toString()
-                            Log.d(TAG, "selected " + mChosenScore);
+//                            Log.d(TAG, "selected " + mChosenScore);
                         }
-                        else
-                            Log.d(TAG, "Selected nothing");
                     }
 
                     @Override
@@ -169,11 +167,9 @@ public class MainGameActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle state) {
         Log.d(TAG, "onSaveInstanceState() called");
-//        state.putInt(STATE.CURRENT_ROLL.toString(), currentRoll);
-        //state.putInt(STATE.NOTIFICATION.toString(), mNotificationText.getId());
         state.putString(STATE.NOTIFICATION.toString(), mNotificationText.getText().toString());
 
-        state.putParcelable("mGame", mGame);
+        state.putParcelable(STATE.GAME.toString(), mGame);
         for(ImageButton dieButton : mDice.keySet()) {
             state.putParcelable("" + dieButton.getId(), mDice.get(dieButton));
         }
@@ -194,10 +190,7 @@ public class MainGameActivity extends AppCompatActivity {
         mDice.put(mDieButton5, savedState.getParcelable("" + mDieButton5.getId()));
         mDice.put(mDieButton6, savedState.getParcelable("" + mDieButton6.getId()));
 
-//        currentRoll = state.getInt(STATE.CURRENT_ROLL.toString());
-
-        mGame = savedState.getParcelable("mGame");
-//        Log.d("___Main.onRestore", "" + mGame.getTotalPoints());
+        mGame = savedState.getParcelable(STATE.GAME.toString());
 
         for(ImageButton dieButton : mDice.keySet()) {
             updateDieButtonImage(dieButton);
@@ -206,11 +199,15 @@ public class MainGameActivity extends AppCompatActivity {
                 dieButton.setEnabled(false);
         }
 
-        if(mGame.isRoundOver()) {
+        if(mGame.isRoundScored()) {
+            mScoreConfirmationButton.setVisibility(View.GONE);
+            mRollButton.setVisibility(View.VISIBLE);
+            mRollButton.setOnClickListener(view -> startRound());
+        }
+        else if(mGame.isRoundOver()) {
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
             mRollButton.setVisibility(View.GONE);
             mRollButton.setOnClickListener(view -> startRound());
-            //TODO måste kolla om poäng har satts. isåfall ska inte use score knappen vara synlig
         }
         else {
             mScoreConfirmationButton.setVisibility(View.GONE);
@@ -240,7 +237,7 @@ public class MainGameActivity extends AppCompatActivity {
             updateDieButtonImage(dieButton);
         }
 
-        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound() + 1));
+        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
 
         mRollButton.setEnabled(true);
         this.updateRollButtonText();
@@ -250,7 +247,7 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
 
-    private void rollDice() {
+    private void rollDice() { //TODO skulle kunna ha en föräldermetod som kör denna och som kollar om rundan är över
         mGame.rollDice();
 
         for(ImageButton dieButton : mDice.keySet()) {
@@ -269,8 +266,9 @@ public class MainGameActivity extends AppCompatActivity {
 //            Log.e(TAG, "index for selected score choice (" + bestScoreChoice + ") is " + bestScoreChoiceIndex);
             int highestScore = mGame.getHighestPoints();
             mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false); //TODO buggy piece of SHIT
-            Log.d(TAG, "setting dropdown selection to " + bestScoreChoice + ", " + bestScoreChoiceIndex);
+//            Log.d(TAG, "setting dropdown selection to " + bestScoreChoice + ", " + bestScoreChoiceIndex);
             mNotificationText.setText("The highest score (" + bestScoreChoice + ") was pre-selected"); //It yields a score of " + highestScore + " using " + mGame.getCountedDiceForBestScoreChoice()
+            //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
 
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
 //            mNotificationText.setText(getString(R.string.round_over_text));
@@ -305,16 +303,18 @@ public class MainGameActivity extends AppCompatActivity {
 //        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORES.toString(), mGame.getRoundScores());
 //        scoreScreen.putExtra(ScoreActivity.Extras.ROUND_SCORE_CHOICES.toString(), mGame.getRoundScoreChoices());
 //        startActivity(scoreScreen);
+//        finish();
 
         prepareNextRound();
     }
 
 
-    private void prepareNextRound() {
+    private void prepareNextRound() { //TODO förbättra metod-struktur - mindre spellogiksimplementation i controllern
         if(mGame.isOver()) {
             Intent scoreScreen = new Intent(this, ScoreActivity.class);
             scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
             startActivity(scoreScreen);
+            finish();
         }
         else {
             mScoreChoiceText.setText(R.string.available_score_choices);
@@ -350,7 +350,11 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     private void updateRollButtonText() {
-        String rollText = getString(R.string.roll_button, mGame.getRollsLeft());
+        String rollText;
+        if(mGame.isRoundOver())
+            rollText = getString(R.string.roll);
+        else
+            rollText = getString(R.string.roll_button, mGame.getRollsLeft());
         mRollButton.setText(rollText);
     }
 
