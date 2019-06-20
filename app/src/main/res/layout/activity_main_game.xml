@@ -90,8 +90,7 @@
         <Spinner
             android:id="@+id/score_dropdown"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible" />
+            android:layout_height="wrap_content" />
         <!--android:entries="@array/score_choices"-->
 
         <TextView
@@ -107,14 +106,14 @@
             android:layout_height="wrap_content"
             android:text="@string/score_confirmation"
             android:textSize="18sp"
-            android:visibility="gone" />
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/roll_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/start_game"
-            android:textSize="18sp" />
+            android:text="@string/roll"
+            android:textSize="24sp" />
 
     </LinearLayout>
 
@@ -134,6 +133,15 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@string/total_score" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|right"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="67dp">
 
         <Button
             android:id="@+id/reset_button"

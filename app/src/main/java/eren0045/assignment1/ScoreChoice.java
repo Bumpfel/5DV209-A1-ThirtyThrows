@@ -1,6 +1,6 @@
 package eren0045.assignment1;
 
-public enum Score {
+public enum ScoreChoice {
     LOW(0),
     FOUR(4),
     FIVE(5),
@@ -15,7 +15,7 @@ public enum Score {
 
     private int value;
 
-    Score(int n) {
+    ScoreChoice(int n) {
         value = n;
     }
 

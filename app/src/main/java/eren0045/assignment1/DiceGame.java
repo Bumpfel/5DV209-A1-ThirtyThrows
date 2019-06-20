@@ -10,29 +10,30 @@ import java.util.Collections;
 
 public class DiceGame implements Parcelable {
 
-    //TODO score och scoreChoice är lite förvirrande. kan ev. byta till scoreChoice och points?
     final int MAX_ROLLS = 3;
     final int MAX_ROUNDS = 10;
     final int NR_OF_DICE = 6;
 
     private ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
-    private ArrayList<Score> mAvailableScoreChoices;
+    private ArrayList<ScoreChoice> mAvailableScoreChoices;
 
-    private boolean isStarted = false;
+    private boolean mIsStarted = false;
     private int mRollsLeft;
     private int mCurrentRound;
-    private int[] mRoundScores = new int[MAX_ROUNDS];
-    private Score[] mRoundScoreChoices = new Score[MAX_ROUNDS];
-    private int mTotalScore;
-    private int mTempRoundScore;
-    private Score mChosenScore = null;
-    private Score mBestScoreChoice = null;
+    private int mTotalPoints;
+    private int mTempRoundPoints;
+    private ScoreChoice mScoreChoice = null;
+    private ScoreChoice mBestScoreChoice = null;
+
+    // Used to store scoring records
+    private int[] mRoundPoints = new int[MAX_ROUNDS];
+    private ScoreChoice[] mRoundScoreChoices = new ScoreChoice[MAX_ROUNDS];
 
     // Used for score calculations
     private ArrayList<Die> mDiceUsedForThisCalc;
-    private ArrayList<Die> mCountedDice;
-    private ArrayList<ArrayList<Die>> mCountedDiceCombos;
-    private ArrayList<ArrayList<Die>> mBestScoreCountedDice;
+    private ArrayList<Die> mTempCountedDice;
+    private ArrayList<ArrayList<Die>> mTempCountedDiceCombos;
+    private ArrayList<ArrayList<Die>> mBestScoreChoiceCountedDiceCombos;
 
 
     private final String TAG = "------DiceGame";
@@ -44,10 +45,8 @@ public class DiceGame implements Parcelable {
 
         // sorting list to enable the auto-score method to check the higher choices before the lower
         // (thinking generally the higher score choices are less useful than lower scores and should therefore be used first)
-        mAvailableScoreChoices = new ArrayList<>(Arrays.asList(Score.values()));
+        mAvailableScoreChoices = new ArrayList<>(Arrays.asList(ScoreChoice.values()));
         Collections.reverse(mAvailableScoreChoices);
-
-//        newRound();
     }
 
     /**
@@ -56,7 +55,7 @@ public class DiceGame implements Parcelable {
      */
     public void newRound() throws IllegalMethodCallException {
         if(isRoundOver()) {
-            isStarted = true;
+            mIsStarted = true;
             mRollsLeft = MAX_ROLLS - 1; // TODO (något osnyggt att ha -1)
             resetDice();
         }
@@ -66,10 +65,11 @@ public class DiceGame implements Parcelable {
 
 
 
-    private void setDebugDice() { // TODO debug
+    private void setDebugDice() { // TODO debug. delete when done
 //        int[] arr = {6, 5, 5, 3, 2, 1 }; // 7 -> 6+1 + 5+2 == 14
 //         int[] arr = {5, 4, 3, 2, 2, 2}; // 4 -> 4 + 2+2 == 8
-         int[] arr = {6, 6, 4, 3, 2, 2}; // 10 -> 6+4 + 6+2+2 == 20
+//         int[] arr = {6, 6, 4, 3, 2, 2}; // 10 -> 6+4 + 6+2+2 == 20
+        int[] arr = { 2, 6, 3, 2, 5, 2 };
 
         for(int i = 0; i < 6; i ++) {
             mDice.get(i).setDie(arr[i]);
@@ -81,7 +81,7 @@ public class DiceGame implements Parcelable {
      * @throws IllegalMethodCallException if method is called when round is over. Use isRoundOver() to avoid this exception
      */
     public void rollDice() throws IllegalMethodCallException {
-        boolean usePresetDice = false; // TODO change to true to use dice from the debugging method
+        boolean usePresetDice = false; // TODO change to true to use dice from the debugging method. remove when done
 
         if(!isRoundOver()) {
             if(usePresetDice) { // TODO remove debug when done
@@ -120,7 +120,7 @@ public class DiceGame implements Parcelable {
     }
 
     public boolean isStarted() {
-        return isStarted;
+        return mIsStarted;
     }
 
     public boolean isRoundOver() { // TODO not sure if this needs to be public
@@ -132,13 +132,16 @@ public class DiceGame implements Parcelable {
     }
 
     /**
-     * Records round score, score choice, removes score choice for next round, and sets round to +1
+     * Records round points, score choice, removes score choice for next round, and sets round to +1
      */
     public void setScore() {
-        mTotalScore += mTempRoundScore;
-        mRoundScores[mCurrentRound] = mTempRoundScore;
-        mRoundScoreChoices[mCurrentRound] = mChosenScore;
-        boolean removed = mAvailableScoreChoices.remove(mChosenScore);
+//        if(mRoundPoints[mCurrentRound] == 0)
+        mTotalPoints += mTempRoundPoints;
+        mRoundPoints[mCurrentRound] = mTempRoundPoints;
+        mRoundScoreChoices[mCurrentRound] = mScoreChoice;
+        mAvailableScoreChoices.remove(mScoreChoice);
+//        Log.d(TAG, mAvailableScoreChoices.toString());
+        Log.e(TAG,  mScoreChoice + " removed");
         mCurrentRound++;
 //        Log.d("-", "==============================================");
 //        Log.d("-", "Round " + mCurrentRound);
@@ -148,19 +151,19 @@ public class DiceGame implements Parcelable {
     }
 
 
-    ArrayList<Score> getAvailableScoreChoices() {
+    ArrayList<ScoreChoice> getAvailableScoreChoices() {
         return new ArrayList<>(mAvailableScoreChoices);
     }
 
-    public int getTotalScore() {
-        return mTotalScore;
+    public int getTotalPoints() {
+        return mTotalPoints;
     }
 
     /**
-     * Returns the best score choice. calcBestScoreChoice has to be run before this method
+     * Returns the best score choice. getPoints has to be run before this method
      * @return
      */
-    public Score getBestScoreChoice() {
+    public ScoreChoice getBestScoreChoice() {
 //        Log.d("-", "--------------------------------------");
 //        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
         return mBestScoreChoice;
@@ -168,33 +171,33 @@ public class DiceGame implements Parcelable {
 
 
     /**
-     * Finds the highest score for the rolled dice given the available scoring choices in descending order
-     * @return highest score
+     * Finds the highest points for the rolled dice given the available scoring choices in descending order
+     * @return highest possible points for the current dice
      */
-    public int getHighestScore() {
-        int highestScore = 0;
+    public int getHighestPoints() {
+        int highestPoints= 0;
 
-        for(Score score : mAvailableScoreChoices) {
-            int thisScore;
-            thisScore = getScore(score);
-            if(thisScore > highestScore) {
-                highestScore = thisScore;
-                mBestScoreChoice = score;
-                mBestScoreCountedDice = new ArrayList<>(mCountedDiceCombos);
+        for(ScoreChoice scoreChoice : mAvailableScoreChoices) {
+            int thisPoints;
+            thisPoints = getPoints(scoreChoice);
+            if(thisPoints > highestPoints) {
+                highestPoints = thisPoints;
+                mBestScoreChoice = scoreChoice;
+                mBestScoreChoiceCountedDiceCombos = new ArrayList<>(mTempCountedDiceCombos);
             }
         }
-        return highestScore;
+        return highestPoints;
     }
 
 //    //TODO inte jättebra namn
-//    public ArrayList<ArrayList<Die>> getCountedDice(Score scoreChoice) { //TODO temp return type
-//        getScore(scoreChoice);// TODO inte snyggt
-//        return mCountedDiceCombos;
+//    public ArrayList<ArrayList<Die>> getCountedDice(ScoreChoice scoreChoice) { //TODO temp return type
+//        getPoints(scoreChoice);// TODO inte snyggt
+//        return mTempCountedDiceCombos;
 //    }
 
-    public String getCountedDiceForBestScore() { // TODO is it allowed format this in the model?
+    public String getCountedDiceForBestScoreChoice() { // TODO is it allowed to format this in the model?
         StringBuilder str = new StringBuilder();
-        for(ArrayList list : mBestScoreCountedDice) {
+        for(ArrayList list : mBestScoreChoiceCountedDiceCombos) {
             for(Object obj : list) {
                 Die die = (Die) obj;
                 str.append(die.getValue() + "+");
@@ -211,75 +214,76 @@ public class DiceGame implements Parcelable {
 
     //TODO mer buggtestning av poängräkning
     //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
-    public int getScore(Score scoreChoice) {
-        mChosenScore = scoreChoice;
+    public int getPoints(ScoreChoice scoreChoice) {
+        mScoreChoice = scoreChoice;
         Collections.sort(mDice, (d1, d2) -> d1.getValue() > d2.getValue() ? -1 : 1);
 
-        mTempRoundScore = 0;
-        mCountedDice = new ArrayList<>();
-        mCountedDiceCombos = new ArrayList<>();
+        mTempRoundPoints = 0;
+        mTempCountedDice = new ArrayList<>();
+        mTempCountedDiceCombos = new ArrayList<>();
 
         // Calculation for choice LOW
-        if(scoreChoice == Score.LOW) {
+        if(scoreChoice == ScoreChoice.LOW) {
             mDiceUsedForThisCalc = new ArrayList<>();
             for (Die die : mDice) {
                 if (die.getValue() <= 3) {
-                    mTempRoundScore += die.getValue();
+                    mTempRoundPoints += die.getValue();
                     mDiceUsedForThisCalc.add(die);
                 }
             }
-            mCountedDiceCombos.add(mDiceUsedForThisCalc);
+            mTempCountedDiceCombos.add(mDiceUsedForThisCalc);
         }
         // Calculation for choice that isn't LOW
         else {
             for (int i = 0; i < mDice.size(); i++) {
+                Die thisDie = mDice.get(i);
                 mDiceUsedForThisCalc = new ArrayList<>();
-                if (!mCountedDice.contains(mDice.get(i)) && mDice.get(i).getValue() <= scoreChoice.getValue()) {
-                    mDiceUsedForThisCalc.add(mDice.get(i));
-                    doRecursiveCalc(mDice.get(i), 0, mDice.get(i).getValue(), scoreChoice.getValue());
+                if (!mTempCountedDice.contains(thisDie) && thisDie.getValue() <= scoreChoice.getValue()) {
+                    mDiceUsedForThisCalc.add(thisDie);
+                    doRecursiveCalc(thisDie, 0, thisDie.getValue(), scoreChoice.getValue());
                 }
             }
         }
 
-//        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundScore + " through " + mCountedDiceCombos.toString());
+//        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundPoints + " through " + mTempCountedDiceCombos.toString());
 
-        return mTempRoundScore;
+        return mTempRoundPoints;
     }
 
-    private void doRecursiveCalc(Die baseDie, int i, int score, final int CHOSEN_SCORE) {
-        if(score == CHOSEN_SCORE) {
-            mTempRoundScore += score;
-            mCountedDice.addAll(mDiceUsedForThisCalc);
-            mCountedDiceCombos.add(mDiceUsedForThisCalc);
+    private void doRecursiveCalc(final Die BASE_DIE, int dieNr, int countedPoints, final int SCORE_CHOICE_VALUE) {
+        if(countedPoints == SCORE_CHOICE_VALUE) {
+            mTempRoundPoints += countedPoints;
+            mTempCountedDice.addAll(mDiceUsedForThisCalc);
+            mTempCountedDiceCombos.add(mDiceUsedForThisCalc);
             return;
         }
 
-        if(i == mDice.size()) {
+        if(dieNr == mDice.size()) {
             return;
         }
 
-        Die thisDie = mDice.get(i);
-        if(thisDie != baseDie) {
-            if(!mCountedDice.contains(thisDie)) {
-                score += thisDie.getValue();
+        Die thisDie = mDice.get(dieNr);
+        if(thisDie != BASE_DIE) {
+            if(!mTempCountedDice.contains(thisDie)) { //TODO don't understand why I can't combine these two if blocks
+                countedPoints += thisDie.getValue();
                 mDiceUsedForThisCalc.add(thisDie);
             }
 
-            if(score > CHOSEN_SCORE) {
-                score -= thisDie.getValue();
+            if(countedPoints > SCORE_CHOICE_VALUE) { //&& mDiceUsedForThisCalc.contains(thisDie)
+                countedPoints -= thisDie.getValue();
                 mDiceUsedForThisCalc.remove(thisDie);
             }
         }
 
-        doRecursiveCalc(baseDie, ++ i, score, CHOSEN_SCORE);
+        doRecursiveCalc(BASE_DIE, ++ dieNr, countedPoints, SCORE_CHOICE_VALUE);
     }
 
 
     int[] getRoundScores() {
-        return mRoundScores;
+        return mRoundPoints;
     }
 
-    Score[] getRoundScoreChoices() {
+    ScoreChoice[] getRoundScoreChoices() {
         return mRoundScoreChoices;
     }
 

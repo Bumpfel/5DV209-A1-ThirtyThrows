@@ -32,10 +32,10 @@ public class ScoreActivity extends AppCompatActivity {
 
         int totalScore = intent.getIntExtra(Extras.TOTAL_SCORE.toString(), 0);
         int[] roundScores = intent.getIntArrayExtra(Extras.ROUND_SCORES.toString());
-//        Score[] roundScoreChoices = intent.getStringArrayExtra(Extras.ROUND_SCORE_CHOICES.toString());
+//        ScoreChoice[] roundScoreChoices = intent.getStringArrayExtra(Extras.ROUND_SCORE_CHOICES.toString());
 
         mPointsText = findViewById(R.id.points_textview);
-//        mPointsText.setText("You got a total score of " + mGame.getTotalScore());
+//        mPointsText.setText("You got a total score of " + mGame.getTotalPoints());
         mPointsText.setText("You got a total score of " + totalScore);
 
         TextView roundScoresText = findViewById(R.id.round_scores);
