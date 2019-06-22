@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ScoreActivity" />
+        <activity
+            android:name=".ScorePopupActivity"
+            android:theme="@style/Popup"/>
         <activity android:name=".MainGameActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

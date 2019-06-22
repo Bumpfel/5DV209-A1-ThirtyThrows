@@ -42,17 +42,20 @@ public class ScoreActivity extends AppCompatActivity {
         StringBuilder rounds = new StringBuilder();
         StringBuilder formattedPoints = new StringBuilder();
         StringBuilder formattedScoreChoices = new StringBuilder();
-        for (int i = 0; i < roundPoints.length; i ++) {
+
+        // Formatting
+        int i = 0;
+        while(i < roundScoreChoices.length && roundScoreChoices[i] != null) {
             rounds.append("Round " + (i + 1) + "\n");
             formattedPoints.append(roundPoints[i] + "\n");
             formattedScoreChoices.append(roundScoreChoices[i] + "\n");
+            i ++;
         }
 
         roundsText.setText(rounds.toString());
         roundPointsText.setText(formattedPoints.toString());
         roundScoreChoicesText.setText(formattedScoreChoices.toString());
 
-        //
         Button startNewGameButton = findViewById(R.id.start_new_game_button);
         startNewGameButton.setOnClickListener(view -> {
             startActivity(new Intent(ScoreActivity.this, MainGameActivity.class));

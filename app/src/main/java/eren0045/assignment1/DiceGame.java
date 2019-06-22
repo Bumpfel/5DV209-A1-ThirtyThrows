@@ -7,13 +7,12 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 
 public class DiceGame implements Parcelable {
 
-    final int MAX_ROLLS = 3;
-    final int MAX_ROUNDS = 10;
-    final int NR_OF_DICE = 6;
+    private final int MAX_ROLLS = 3;
+    private final int MAX_ROUNDS = 10;
+    private final int NR_OF_DICE = 6;
 
     private ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
     private ArrayList<ScoreChoice> mAvailableScoreChoices;
@@ -22,9 +21,9 @@ public class DiceGame implements Parcelable {
     private int mRollsLeft;
     private int mCurrentRound;
     private int mTotalPoints;
-    private int mTempRoundPoints;
-    private ScoreChoice mScoreChoice = null;
-    private ScoreChoice mBestScoreChoice = null;
+//    private int mRoundPoints;
+//    private ScoreChoice mScoreChoice = null;
+//    private ScoreChoice mBestScoreChoice = null;
 
     // Used to store scoring records
     private int[] mRoundPoints = new int[MAX_ROUNDS];
@@ -139,25 +138,24 @@ public class DiceGame implements Parcelable {
     /**
      * Records round points, score choice, removes score choice for next round, and sets round to +1
      */
-    public void setScore(ScoreChoice scoreChoice) {
+    public void setScore(ScoreChoice scoreChoice, int points) {
         if(!Arrays.asList(mRoundScoreChoices).contains(scoreChoice)) {
-            mTotalPoints += mTempRoundPoints;
-            mRoundPoints[mCurrentRound - 1] = mTempRoundPoints;
+//            mTotalPoints += mTempRoundPoints;
+            mTotalPoints += points;
+            mRoundPoints[mCurrentRound - 1] = points;
             mRoundScoreChoices[mCurrentRound - 1] = scoreChoice.toString();
-            Log.e(TAG, "list pre-remove: " + mAvailableScoreChoices.toString());
-        Log.e(TAG,  scoreChoice + " removed");
+//            Log.e(TAG, "list pre-remove: " + mAvailableScoreChoices.toString());
+            Log.e(TAG,  scoreChoice + " removed");
             mAvailableScoreChoices.remove(scoreChoice);
-            Log.e(TAG, "list pro-remove: " + mAvailableScoreChoices.toString());
-        Log.d("-", "==============================================");
-        Log.e("-", "Round " + mCurrentRound);
-        Log.d("-", "==============================================");
+//            Log.e(TAG, "list pro-remove: " + mAvailableScoreChoices.toString());
 
-            mBestScoreChoice = null;
+
+//            mBestScoreChoice = null;
         }
     }
 
 
-    public ArrayList<ScoreChoice> getAvailableScoreChoices() {
+    public ArrayList<ScoreChoice> getAvailableScoreChoices() { // TODO behövs kanske inte?
         return new ArrayList<>(mAvailableScoreChoices);
     }
 
@@ -166,33 +164,40 @@ public class DiceGame implements Parcelable {
     }
 
     /**
-     * Returns the best score choice. getPoints has to be run before this method
-     * @return
+     * Returns the best score choice. getHighestPoints has to be run before this method
+     * @return score choice that yields the highest possible points for the round, in descending order
      */
-    public ScoreChoice getBestScoreChoice() { //TODO dålig implementation att tvinga användaren att köra getPoints innan getBestScoreChoice. skulle kunna köra getPoints först i denna metod, men onödigt
-        Log.d("-", "--------------------------------------");
-        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
-        return mBestScoreChoice;
-    }
+//    public ScoreChoice getBestScoreChoice() { //TODO dålig implementation att tvinga användaren att köra getPoints innan getBestScoreChoice. skulle kunna köra getPoints först i denna metod, men onödigt
+//        Log.d("-", "--------------------------------------");
+//        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
+//        return mBestScoreChoice;
+//    }
 
 
     /**
      * Finds the highest points for the rolled dice given the available scoring choices in descending order
      * @return highest possible points for the current dice
      */
-    public int getHighestPoints() {
+    public ScoreChoice getBestScoreChoice() {
+        Log.e(TAG, "==============================================");
+        Log.e(TAG, "Round " + mCurrentRound);
+        Log.e(TAG, "==============================================");
+
         int highestPoints = 0;
+        ScoreChoice bestScoreChoice = mAvailableScoreChoices.get(0);
 
         int thisPoints;
         for(ScoreChoice scoreChoice : mAvailableScoreChoices) {
             thisPoints = getPoints(scoreChoice);
             if(thisPoints > highestPoints) {
                 highestPoints = thisPoints;
-                mBestScoreChoice = scoreChoice;
+                bestScoreChoice = scoreChoice;
                 mBestScoreChoiceCountedDiceCombos = new ArrayList<>(mTempCountedDiceCombos);
             }
         }
-        return highestPoints;
+        Log.e("-", "--------------------------------------");
+        Log.d(TAG, "BEST score option " + bestScoreChoice);
+        return bestScoreChoice;
     }
 
 //    //TODO inte jättebra namn
@@ -217,13 +222,13 @@ public class DiceGame implements Parcelable {
     }
 
 
-    //TODO behöver nog göra om lite hur poängen sparas. känns som ett bättre sätt att returnera värden istället för att spara allt i globala variabler. särskilt eftersom spinner.setSelection buggar ibland
-    //TODO mer buggtestning av poängräkning
+    //TODO behöver nog göra om lite hur poängen sparas. känns som ett bättre sätt att returnera värden istället för att spara allt i globala variabler. särskilt eftersom det buggar ibland
+    //TODO (viktigt) poängräkning funkar inte alltid med tre tärningar (t.ex. 6,5,4,4,4,3
     public int getPoints(ScoreChoice scoreChoice) {
-        mScoreChoice = scoreChoice;
+//        mScoreChoice = scoreChoice;
         Collections.sort(mDice, (d1, d2) -> d1.getValue() > d2.getValue() ? -1 : 1);
 
-        mTempRoundPoints = 0;
+        int points = 0;
         mTempCountedDice = new ArrayList<>();
         mTempCountedDiceCombos = new ArrayList<>();
 
@@ -232,7 +237,7 @@ public class DiceGame implements Parcelable {
             mDiceUsedForThisCalc = new ArrayList<>();
             for (Die die : mDice) {
                 if (die.getValue() <= 3) {
-                    mTempRoundPoints += die.getValue();
+                    points += die.getValue();
                     mDiceUsedForThisCalc.add(die);
                 }
             }
@@ -245,26 +250,26 @@ public class DiceGame implements Parcelable {
                 mDiceUsedForThisCalc = new ArrayList<>();
                 if (!mTempCountedDice.contains(thisDie) && thisDie.getValue() <= scoreChoice.getValue()) {
                     mDiceUsedForThisCalc.add(thisDie);
-                    doRecursiveCalc(thisDie, 0, thisDie.getValue(), scoreChoice.getValue());
+                    points += countRoundPoints(thisDie, 0, thisDie.getValue(), scoreChoice.getValue());
                 }
             }
         }
 
-        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundPoints + " through " + mTempCountedDiceCombos.toString());
+        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + points + " through " + mTempCountedDiceCombos.toString());
 
-        return mTempRoundPoints;
+        return points;
     }
 
-    private void doRecursiveCalc(final Die BASE_DIE, int dieNr, int countedPoints, final int SCORE_CHOICE_VALUE) {
+    private int countRoundPoints(final Die BASE_DIE, int dieNr, int countedPoints, final int SCORE_CHOICE_VALUE) {
         if(countedPoints == SCORE_CHOICE_VALUE) {
-            mTempRoundPoints += countedPoints;
+//            mTempRoundPoints += countedPoints;
             mTempCountedDice.addAll(mDiceUsedForThisCalc);
             mTempCountedDiceCombos.add(mDiceUsedForThisCalc);
-            return;
+            return countedPoints;
         }
 
         if(dieNr == mDice.size()) {
-            return;
+            return 0;
         }
 
         Die thisDie = mDice.get(dieNr);
@@ -280,7 +285,7 @@ public class DiceGame implements Parcelable {
             }
         }
 
-        doRecursiveCalc(BASE_DIE, ++ dieNr, countedPoints, SCORE_CHOICE_VALUE);
+        return countRoundPoints(BASE_DIE, ++ dieNr, countedPoints, SCORE_CHOICE_VALUE);
     }
 
     public int[] getRoundPoints() {

@@ -12,7 +12,7 @@
     <string name="round_nr">Round #%1$d</string>
     <string name="new_round">Roll to start the next round</string>
     <string name="present_score_choice">%1$s gives you a round score of %2$d</string>
-    <string name="present_best_score_choice">%1$s gives you a round score of %2$d (auto-selected best)</string>
+    <!--<string name="present_best_score_choice">%1$s gives you a round score of %2$d (auto-selected best)</string>-->
 
     <string-array name="score_choices">
         <item>LOW</item>
