@@ -7,64 +7,56 @@ import java.util.Random;
 
 class Die implements Parcelable {
 
-    private int value = 0;
-    private Random random = new Random();
-    private boolean enabled = true;
+    private int mValue = 0;
+    private Random mRandom = new Random();
+    private boolean mEnabled = true;
 
     Die() {
         roll();
     }
 
+    public String toString() {
+        return "" + getValue();
+    }
+
     void setDie(int n) { // TODO for debugging
-        value = n;
+        mValue = n;
     } //TODO temp
 
     void roll() {
-        value = random.nextInt(6) + 1;
+        mValue = mRandom.nextInt(6) + 1;
     }
 
     void reset() {
-        enabled = true;
+        mEnabled = true;
         roll();
     }
 
     void toggleDie() {
-        enabled = !enabled;
+        mEnabled = !mEnabled;
     }
 
     boolean isEnabled() {
-        return enabled;
+        return mEnabled;
     }
 
     int getValue() {
-        return value;
+        return mValue;
     }
 
-
-    public String toString() {
-        return "" + value;
-    }
-//    public boolean isCounted() {
-//        return counted;
-//    }
-//
-//    public void setCounted() {
-//        counted = true;
-//    }
 
     /* **************** */
     /* Parcelable stuff */
     /* **************** */
-    private int mData;
 
     // used to write object to Parcel
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(mData);
+        out.writeInt(mValue);
     }
 
     // constructor used by Creator
     private Die(Parcel in) {
-        mData = in.readInt();
+        mValue = in.readInt();
     }
 
     // used to restore object from parcel

@@ -4,15 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColourGrey"
     tools:context="eren0045.assignment1.MainGameActivity">
+
+    <TextView
+        android:id="@+id/total_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_horizontal"
+        android:text="@string/total_score"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/reset_button"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/reset_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="16dp">
 
         <TextView
             android:id="@+id/round_nr"
@@ -24,7 +48,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -33,28 +57,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/die1"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
             <ImageButton
                 android:id="@+id/die2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/die2"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
             <ImageButton
                 android:id="@+id/die3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/die3"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="8dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -64,28 +91,32 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="false"
                 android:contentDescription="@string/die4"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
             <ImageButton
                 android:id="@+id/die5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/die5"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
             <ImageButton
                 android:id="@+id/die6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/die6"
-                android:src="@drawable/white_null" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/white6" />
 
         </LinearLayout>
 
         <TextView
             android:id="@+id/score_choice_text"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/available_score_choices" />
 
         <Spinner
             android:id="@+id/score_dropdown"
@@ -105,49 +136,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/score_confirmation"
-            android:textSize="18sp"
-            android:visibility="invisible" />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/roll_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/roll"
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom|center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/total_score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/total_score" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom|right"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteY="67dp">
-
-        <Button
-            android:id="@+id/reset_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/reset_button" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

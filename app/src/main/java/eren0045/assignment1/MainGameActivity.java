@@ -3,6 +3,7 @@ package eren0045.assignment1;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +48,7 @@ public class MainGameActivity extends AppCompatActivity {
 
     private static final String TAG = "---MainGameActivity---";
 
+//    private int[] activeDiceImages = { 0, R.drawable.d1, R.drawable.d2, R.drawable.d3, R.drawable.d4, R.drawable.d5, R.drawable.d6 };
     private int[] activeDiceImages = { 0, R.drawable.white1, R.drawable.white2, R.drawable.white3, R.drawable.white4, R.drawable.white5, R.drawable.white6 };
     private int[] inactiveDiceImages = { 0, R.drawable.grey1, R.drawable.grey2, R.drawable.grey3, R.drawable.grey4, R.drawable.grey5, R.drawable.grey6 };
     private int[] finishedDiceImages = { 0, R.drawable.red1, R.drawable.red2, R.drawable.red3, R.drawable.red4, R.drawable.red5, R.drawable.red6 };
@@ -61,35 +63,7 @@ public class MainGameActivity extends AppCompatActivity {
         initialize();
         if(savedState == null)
             setStartValues();
-//        else {
-//            restoreGame(savedState);
-//        }
     }
-
-    private void setStartValues() {
-        mGame = new DiceGame();
-
-        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
-        int i = 0;
-        for(Die die : mGame.getDice()) {
-            final ImageButton DIE_BUTTON = dieButtons[i ++];
-            DIE_BUTTON.setOnClickListener(view -> toggleDie(DIE_BUTTON));
-            mDice.put(DIE_BUTTON, die);
-            DIE_BUTTON.setImageDrawable(getResources().getDrawable(R.drawable.white6));
-        }
-
-        mRollButton.setOnClickListener(view -> startRound());
-        mRollButton.setText(R.string.roll);
-
-        mNotificationText.setText(null);
-        mScoreConfirmationButton.setVisibility(View.GONE);
-
-        mRoundNrText.setText(null);
-        mTotalScoreText.setText(null);
-
-        initDropdown();
-    }
-
 
     private void initialize() {
         // tie buttons to variables
@@ -100,6 +74,12 @@ public class MainGameActivity extends AppCompatActivity {
         mDieButton5 = findViewById(R.id.die5);
         mDieButton6 = findViewById(R.id.die6);
 
+        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
+        for(ImageButton dieButton : dieButtons) {
+            dieButton.setOnClickListener(view -> toggleDie(dieButton));
+            dieButton.setBackgroundColor(Color.TRANSPARENT);
+        }
+
         // Action for roll button
         mRollButton = findViewById(R.id.roll_button);
         mRollButton.setVisibility(View.VISIBLE);
@@ -109,22 +89,6 @@ public class MainGameActivity extends AppCompatActivity {
         mResetButton.setOnClickListener(view -> finish());
 
         mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
-//        mScoreChoiceDropdown.setOnItemSelectedListener(
-//                new AdapterView.OnItemSelectedListener() {
-//                    @Override
-//                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                        if(mGame.isStarted() && mGame.isRoundOver()) {
-//                            mChosenScore = ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
-////                            ArrayList<ArrayList<Die>> countedDice = mGame.getCountedDice(mChosenScore);
-//                            mScoreChoiceText.setText(getString(R.string.present_score_option, mChosenScore, mGame.getPoints(mChosenScore))); //, countedDice.toString()
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onNothingSelected(AdapterView<?> adapterView) {
-//                    }
-//                }
-//        );
 
         // Notification text
         mScoreChoiceText = findViewById(R.id.score_choice_text);
@@ -137,6 +101,11 @@ public class MainGameActivity extends AppCompatActivity {
         // game info texts
         mRoundNrText = findViewById(R.id.round_nr);
         mTotalScoreText = findViewById(R.id.total_score);
+        mTotalScoreText.setOnClickListener(view -> {
+            Intent scoreScreen = new Intent(this, ScoreActivity.class);
+            scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
+            startActivity(scoreScreen);
+        });
     }
 
 
@@ -148,11 +117,9 @@ public class MainGameActivity extends AppCompatActivity {
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        if(mGame.isStarted() && mGame.isRoundOver()) {
+                        if(mGame.hasStarted() && mGame.isRoundOver()) {
                             mChosenScore = ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
-//                            ArrayList<ArrayList<Die>> countedDice = mGame.getCountedDice(mChosenScore);
-                            mScoreChoiceText.setText(getString(R.string.present_score_option, mChosenScore, mGame.getPoints(mChosenScore))); //, countedDice.toString()
-//                            Log.d(TAG, "selected " + mChosenScore);
+                            mScoreChoiceText.setText(getString(R.string.present_score_choice, mChosenScore, mGame.getPoints(mChosenScore))); //, countedDice.toString()
                         }
                     }
 
@@ -161,6 +128,37 @@ public class MainGameActivity extends AppCompatActivity {
                     }
                 }
         );
+        mScoreChoiceDropdown.setVisibility(View.GONE);
+    }
+
+
+    private void setStartValues() {
+        mGame = new DiceGame();
+
+        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
+
+        ArrayList<Die> gameDice = mGame.getDice();
+        for(int i = 0; i < gameDice.size(); i ++) {
+            final ImageButton DIE_BUTTON = dieButtons[i];
+            DIE_BUTTON.setEnabled(false);
+//            DIE_BUTTON.setOnClickListener(view -> toggleDie(DIE_BUTTON));
+            mDice.put(DIE_BUTTON, gameDice.get(i));
+
+//            DIE_BUTTON.setImageDrawable(getResources().getDrawable(R.drawable.white6));
+//            DIE_BUTTON.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+        mRollButton.setOnClickListener(view -> startRound());
+
+        mScoreChoiceText.setVisibility(View.GONE);
+        mNotificationText.setText(null);
+        mScoreConfirmationButton.setVisibility(View.GONE);
+
+        mRoundNrText.setVisibility(View.INVISIBLE);
+        mTotalScoreText.setVisibility(View.INVISIBLE);
+        mTotalScoreText.setText(getString(R.string.total_score, 0));
+
+        initDropdown();
     }
 
 
@@ -192,14 +190,14 @@ public class MainGameActivity extends AppCompatActivity {
 
         mGame = savedState.getParcelable(STATE.GAME.toString());
 
-        for(ImageButton dieButton : mDice.keySet()) {
-            updateDieButtonImage(dieButton);
+        updateAllDieButtons();
+        initDropdown();
 
-            if(mGame.isRoundOver())
-                dieButton.setEnabled(false);
+        if(!mGame.hasStarted()) {
+            setStartValues();
+            Log.e(TAG, "Game not started. setting start values");
         }
-
-        if(mGame.isRoundScored()) {
+        else if(mGame.isRoundScored()) {
             mScoreConfirmationButton.setVisibility(View.GONE);
             mRollButton.setVisibility(View.VISIBLE);
             mRollButton.setOnClickListener(view -> startRound());
@@ -208,73 +206,58 @@ public class MainGameActivity extends AppCompatActivity {
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
             mRollButton.setVisibility(View.GONE);
             mRollButton.setOnClickListener(view -> startRound());
+
+            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+            mChosenScore = mGame.getBestScoreChoice();
+            int chosenScoreIndex = mScoreChoices.indexOf(mChosenScore);
+            mScoreChoiceDropdown.setSelection(chosenScoreIndex);
         }
-        else {
+        else { // Game running
             mScoreConfirmationButton.setVisibility(View.GONE);
+            mScoreChoiceText.setVisibility(View.GONE);
             mRollButton.setVisibility(View.VISIBLE);
             mRollButton.setOnClickListener(view -> rollDice());
         }
 
-        this.updateRollButtonText();
+
+        updateRollButtonText();
 //        mScoreChoices = mGame.getAvailableScoreChoices();
-        initDropdown();
         mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
         mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalPoints()));
         mNotificationText.setText(savedState.getString(STATE.NOTIFICATION.toString()));
     }
 
 
-
     private void startRound() {
         mGame.newRound();
-        mNotificationText.setText(null);
+
+//        mScoreChoiceText.setVisibility(View.VISIBLE);
 //        mScoreChoiceDropdown.setVisibility(View.VISIBLE);
-        mScoreChoiceText.setVisibility(View.VISIBLE);
-        mScoreChoiceText.setText(R.string.available_score_choices);
+//        mScoreChoiceText.setText(R.string.available_score_choices);
 
         for(ImageButton dieButton: mDice.keySet()) {
-            dieButton.setEnabled(true);
             updateDieButtonImage(dieButton);
+            dieButton.setEnabled(true);
         }
+        updateRollButtonText();
 
+        mNotificationText.setText(null);
+        mRoundNrText.setVisibility(View.VISIBLE);
         mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
-
         mRollButton.setEnabled(true);
-        this.updateRollButtonText();
         mRollButton.setOnClickListener(view -> rollDice());
-
-        mResetButton.setVisibility(View.VISIBLE);
+        mTotalScoreText.setVisibility(View.VISIBLE);
     }
 
 
-    private void rollDice() { //TODO skulle kunna ha en föräldermetod som kör denna och som kollar om rundan är över
+    private void rollDice() {
         mGame.rollDice();
+        updateAllDieButtons();
 
-        for(ImageButton dieButton : mDice.keySet()) {
-            updateDieButtonImage(dieButton);
-        }
-
-        if(mGame.isRoundOver()) {
-            mGame.getHighestPoints(); //TODO (low prio) could add a checkbox option to use automatic calculation or not
-
-            mRollButton.setVisibility(View.GONE);
-//            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
-
-//TODO (viktig) senaste tanke - ev. orsak till bugg där fel poängval tas bort - getPoints måste köras INNAN getBestScoreChoice. Ibland görs inget val. det är då det buggar
-            ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
-            int bestScoreChoiceIndex = mScoreChoices.indexOf(bestScoreChoice);
-//            Log.e(TAG, "index for selected score choice (" + bestScoreChoice + ") is " + bestScoreChoiceIndex);
-            int highestScore = mGame.getHighestPoints();
-            mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false); //TODO buggy piece of SHIT
-//            Log.d(TAG, "setting dropdown selection to " + bestScoreChoice + ", " + bestScoreChoiceIndex);
-            mNotificationText.setText("The highest score (" + bestScoreChoice + ") was pre-selected"); //It yields a score of " + highestScore + " using " + mGame.getCountedDiceForBestScoreChoice()
-            //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
-
-            mScoreConfirmationButton.setVisibility(View.VISIBLE);
-//            mNotificationText.setText(getString(R.string.round_over_text));
-        }
-
-        updateRollButtonText();
+        if(mGame.isRoundOver())
+           setRoundEndedStates();
+        else
+            updateRollButtonText();
     }
 
 
@@ -289,18 +272,13 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     private void useScore() {
-//        mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
         mScoreConfirmationButton.setVisibility(View.GONE);
-        mGame.setScore();
+        mGame.setScore(mChosenScore);
 
+        mScoreChoices.remove(mChosenScore);
         mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalPoints()));
-
-        // TODO temp
-
-//        Intent scoreScreen = new Intent(this, ScoreActivity.class);
-//        scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
-//        startActivity(scoreScreen);
-//        finish();
+        mScoreChoiceDropdown.setVisibility(View.GONE);
+        mScoreChoiceText.setVisibility(View.GONE);
 
         prepareNextRound();
     }
@@ -314,25 +292,65 @@ public class MainGameActivity extends AppCompatActivity {
             finish();
         }
         else {
-            mScoreChoiceText.setText(R.string.available_score_choices);
+//            mScoreChoiceText.setText(R.string.available_score_choices);
             mNotificationText.setText(R.string.new_round);
             mRollButton.setVisibility(View.VISIBLE);
             mRollButton.setText(R.string.roll);
             mRollButton.setOnClickListener(view -> startRound());
 
-            mScoreChoices = mGame.getAvailableScoreChoices();
-            mSpinnerAdapter.clear();
-            mSpinnerAdapter.addAll(mScoreChoices);
+//            mScoreChoices = mGame.getAvailableScoreChoices();
+//            mSpinnerAdapter.clear();
+//            mSpinner
+//            mSpinnerAdapter.addAll(mScoreChoices);
             mSpinnerAdapter.notifyDataSetChanged();
         }
     }
+
+
+
+
+    private void setRoundEndedStates() {
+        mRollButton.setVisibility(View.GONE);
+        mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+        mScoreChoiceText.setVisibility(View.VISIBLE);
+
+        //TODO (low prio) could add a checkbox option to use automatic calculation or not
+
+//TODO (viktig) Ibland funkar inte setSelection(?), det buggar när mChosenScore sätts till nåt som inte finns längre
+//      ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
+        int highestScore = mGame.getHighestPoints();
+        mChosenScore = mGame.getBestScoreChoice();
+        int bestScoreChoiceIndex = mScoreChoices.indexOf(mChosenScore);
+        Log.d(TAG, "Auto-selected: " + bestScoreChoiceIndex + ": " + mChosenScore);
+        Log.d(TAG, ""+ mScoreChoices.toString());
+//            Log.e(TAG, "index for selected score choice (" + bestScoreChoice + ") is " + bestScoreChoiceIndex);
+        mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+        mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false);
+//            Log.d(TAG, "setting dropdown selection to " + bestScoreChoice + ", " + bestScoreChoiceIndex);
+        mScoreChoiceText.setText(getString(R.string.present_best_score_choice, mChosenScore, highestScore));
+//        mNotificationText.setText("The highest score (" + mChosenScore + ") was pre-selected"); //It yields a score of " + highestScore + " using " + mGame.getCountedDiceForBestScoreChoice()
+        //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
+
+        mScoreConfirmationButton.setVisibility(View.VISIBLE);
+            mNotificationText.setText(getString(R.string.round_over_text));
+
+    }
+
+    private void setRoundStartedStates() {
+
+    }
+
+
+
 
     private void updateDieButtonImage(ImageButton dieButton) {
         Die thisDie = mDice.get(dieButton);
 
         int imgId;
         int dieValue = thisDie.getValue();
+
         if(mGame.isRoundOver()) {
+            dieButton.setEnabled(false);
             imgId = finishedDiceImages[dieValue];
         }
         else {
@@ -344,6 +362,15 @@ public class MainGameActivity extends AppCompatActivity {
 
         dieButton.setImageDrawable(getResources().getDrawable(imgId));
     }
+
+    private void updateAllDieButtons() {
+        if(!mGame.hasStarted())
+            return;
+        for(ImageButton dieButton : mDice.keySet()) {
+            updateDieButtonImage(dieButton);
+        }
+    }
+
 
 
     private void updateRollButtonText() {

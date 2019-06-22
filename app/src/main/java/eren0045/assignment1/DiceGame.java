@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 
 public class DiceGame implements Parcelable {
 
@@ -35,7 +36,6 @@ public class DiceGame implements Parcelable {
     private ArrayList<ArrayList<Die>> mTempCountedDiceCombos;
     private ArrayList<ArrayList<Die>> mBestScoreChoiceCountedDiceCombos;
 
-
     private final String TAG = "------DiceGame";
 
     public DiceGame() {
@@ -49,14 +49,6 @@ public class DiceGame implements Parcelable {
         Collections.reverse(mAvailableScoreChoices);
     }
 
-    //TODO temp
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("currentRound" + mCurrentRound);
-        str.append(", totalPoints" + mTotalPoints);
-        return str.toString();
-    }
 
     /**
      * Starts a new round
@@ -72,7 +64,6 @@ public class DiceGame implements Parcelable {
         else
             throw new IllegalMethodCallException("Cannot create new round until round is finished");
     }
-
 
 
     private void setDebugDice() { // TODO debug. delete when done
@@ -125,11 +116,11 @@ public class DiceGame implements Parcelable {
         return mCurrentRound;
     }
 
-    public Iterable<Die> getDice() {
-        return mDice;
-    }
+    public ArrayList<Die> getDice() {
+        return new ArrayList<>(mDice);
+    } // TODO fortfarande ett problem att Die har tillgängliga metoder som modifierar tärningen. skulle kunna lägga Die (och DiceGame) i separat model-paket
 
-    public boolean isStarted() {
+    public boolean hasStarted() {
         return mIsStarted;
     }
 
@@ -138,7 +129,7 @@ public class DiceGame implements Parcelable {
     }
 
     public boolean isRoundScored() {
-        return mAvailableScoreChoices.size() == (MAX_ROUNDS - mCurrentRound);
+        return mAvailableScoreChoices.size() == (MAX_ROUNDS - mCurrentRound) && hasStarted();
     }
 
     public boolean isOver() {
@@ -148,23 +139,25 @@ public class DiceGame implements Parcelable {
     /**
      * Records round points, score choice, removes score choice for next round, and sets round to +1
      */
-    public void setScore() {
-//        if(mRoundPoints[mCurrentRound] == 0)
-        mTotalPoints += mTempRoundPoints;
-        mRoundPoints[mCurrentRound - 1] = mTempRoundPoints;
-        mRoundScoreChoices[mCurrentRound - 1] = mScoreChoice.toString();
-        mAvailableScoreChoices.remove(mScoreChoice);
-//        Log.d(TAG, mAvailableScoreChoices.toString());
-        Log.e(TAG,  mScoreChoice + " removed");
-//        Log.d("-", "==============================================");
-//        Log.d("-", "Round " + mCurrentRound);
-//        Log.d("-", "==============================================");
+    public void setScore(ScoreChoice scoreChoice) {
+        if(!Arrays.asList(mRoundScoreChoices).contains(scoreChoice)) {
+            mTotalPoints += mTempRoundPoints;
+            mRoundPoints[mCurrentRound - 1] = mTempRoundPoints;
+            mRoundScoreChoices[mCurrentRound - 1] = scoreChoice.toString();
+            Log.e(TAG, "list pre-remove: " + mAvailableScoreChoices.toString());
+        Log.e(TAG,  scoreChoice + " removed");
+            mAvailableScoreChoices.remove(scoreChoice);
+            Log.e(TAG, "list pro-remove: " + mAvailableScoreChoices.toString());
+        Log.d("-", "==============================================");
+        Log.e("-", "Round " + mCurrentRound);
+        Log.d("-", "==============================================");
 
-        mBestScoreChoice = null;
+            mBestScoreChoice = null;
+        }
     }
 
 
-    ArrayList<ScoreChoice> getAvailableScoreChoices() {
+    public ArrayList<ScoreChoice> getAvailableScoreChoices() {
         return new ArrayList<>(mAvailableScoreChoices);
     }
 
@@ -177,8 +170,8 @@ public class DiceGame implements Parcelable {
      * @return
      */
     public ScoreChoice getBestScoreChoice() { //TODO dålig implementation att tvinga användaren att köra getPoints innan getBestScoreChoice. skulle kunna köra getPoints först i denna metod, men onödigt
-//        Log.d("-", "--------------------------------------");
-//        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
+        Log.d("-", "--------------------------------------");
+        Log.d(TAG, "BEST score choice " + mBestScoreChoice);
         return mBestScoreChoice;
     }
 
@@ -188,10 +181,10 @@ public class DiceGame implements Parcelable {
      * @return highest possible points for the current dice
      */
     public int getHighestPoints() {
-        int highestPoints= 0;
+        int highestPoints = 0;
 
+        int thisPoints;
         for(ScoreChoice scoreChoice : mAvailableScoreChoices) {
-            int thisPoints;
             thisPoints = getPoints(scoreChoice);
             if(thisPoints > highestPoints) {
                 highestPoints = thisPoints;
@@ -208,7 +201,7 @@ public class DiceGame implements Parcelable {
 //        return mTempCountedDiceCombos;
 //    }
 
-    public String getCountedDiceForBestScoreChoice() { // TODO is it allowed to format this in the model?
+    public String getCountedDiceForBestScoreChoice() {
         StringBuilder str = new StringBuilder();
         for(ArrayList list : mBestScoreChoiceCountedDiceCombos) {
             for(Object obj : list) {
@@ -222,7 +215,6 @@ public class DiceGame implements Parcelable {
 
         return str.toString();
     }
-
 
 
     //TODO behöver nog göra om lite hur poängen sparas. känns som ett bättre sätt att returnera värden istället för att spara allt i globala variabler. särskilt eftersom spinner.setSelection buggar ibland
@@ -258,7 +250,7 @@ public class DiceGame implements Parcelable {
             }
         }
 
-//        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundPoints + " through " + mTempCountedDiceCombos.toString());
+        Log.d(TAG, "round score for "+ scoreChoice + "(" + scoreChoice.getValue() + "): " + mTempRoundPoints + " through " + mTempCountedDiceCombos.toString());
 
         return mTempRoundPoints;
     }
@@ -291,13 +283,12 @@ public class DiceGame implements Parcelable {
         doRecursiveCalc(BASE_DIE, ++ dieNr, countedPoints, SCORE_CHOICE_VALUE);
     }
 
-
-    int[] getRoundPoints() {
-        return mRoundPoints;
+    public int[] getRoundPoints() {
+        return Arrays.copyOf(mRoundPoints, mRoundPoints.length);
     }
 
-    String[] getRoundScoreChoices() {
-        return mRoundScoreChoices;
+    public String[] getRoundScoreChoices() {
+        return Arrays.copyOf(mRoundScoreChoices, mRoundScoreChoices.length);
     }
 
 
