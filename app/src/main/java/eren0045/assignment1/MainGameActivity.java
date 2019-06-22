@@ -160,7 +160,7 @@ public class MainGameActivity extends AppCompatActivity {
 
         mRoundNrText.setVisibility(View.INVISIBLE);
         mTotalScoreText.setVisibility(View.INVISIBLE);
-        mTotalScoreText.setText(getString(R.string.total_score, 0));
+        mTotalScoreText.setText(getString(R.string.total_points, 0));
 
         initDropdown();
     }
@@ -228,7 +228,7 @@ public class MainGameActivity extends AppCompatActivity {
         updateRollButtonText();
 //        mAvailableScoreChoices = mGame.getAvailableScoreChoices();
         mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
-        mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalPoints()));
+        mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
         mNotificationText.setText(savedState.getString(STATE.NOTIFICATION.toString()));
     }
 
@@ -284,7 +284,7 @@ public class MainGameActivity extends AppCompatActivity {
 
         mAvailableScoreChoices.remove(selectedScoreChoice); //TODO prob prettier to get score choices from mGame
         mSpinnerAdapter.notifyDataSetChanged();
-        mTotalScoreText.setText(getString(R.string.total_score, mGame.getTotalPoints()));
+        mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
 //        mScoreChoiceDropdown.setVisibility(View.GONE);
         mScoreChoiceDropdown.setAlpha((float) INACTIVE_VIEW_ALPHA);
         mScoreChoiceText.setVisibility(View.GONE);
@@ -338,7 +338,7 @@ public class MainGameActivity extends AppCompatActivity {
         //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
 
         mScoreConfirmationButton.setVisibility(View.VISIBLE);
-        mNotificationText.setText(getString(R.string.round_over_text));
+        mNotificationText.setText(getString(R.string.round_over));
 
     }
 

@@ -6,26 +6,31 @@
     <string name="roll_button">Roll (%1$d)</string>
     <string name="roll">Roll!</string>
     <string name="reset_button">Reset Game</string>
-    <string name="round_over_text">Round Over. Make your score choice</string>
-    <string name="total_score">Total Score %1$d</string>
+    <string name="round_over">Round Over. Make your score choice</string>
+    <string name="total_points">Total Points %1$d</string>
     <string name="available_score_choices">Available score choices</string>
     <string name="round_nr">Round #%1$d</string>
     <string name="new_round">Roll to start the next round</string>
     <string name="present_score_choice">%1$s gives you a round score of %2$d</string>
     <!--<string name="present_best_score_choice">%1$s gives you a round score of %2$d (auto-selected best)</string>-->
 
-    <string-array name="score_choices">
-        <item>LOW</item>
-        <item>FOUR</item>
-        <item>FIVE</item>
-        <item>SIX</item>
-        <item>SEVEN</item>
-        <item>EIGHT</item>
-        <item>NINE</item>
-        <item>TEN</item>
-        <item>ELEVEN</item>
-        <item>TWELVE</item>
-    </string-array>
+    <string name="results">Results</string>
+    <string name="round">Round #</string>
+    <string name="points">Points %1$d</string>
+    <string name="score_choice">Score used</string>
+
+    <!--<string-array name="score_choices">-->
+        <!--<item>LOW</item>-->
+        <!--<item>FOUR</item>-->
+        <!--<item>FIVE</item>-->
+        <!--<item>SIX</item>-->
+        <!--<item>SEVEN</item>-->
+        <!--<item>EIGHT</item>-->
+        <!--<item>NINE</item>-->
+        <!--<item>TEN</item>-->
+        <!--<item>ELEVEN</item>-->
+        <!--<item>TWELVE</item>-->
+    <!--</string-array>-->
 
     <string name="score_confirmation">Use choice</string>
 

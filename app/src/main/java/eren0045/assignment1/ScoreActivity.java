@@ -46,7 +46,7 @@ public class ScoreActivity extends AppCompatActivity {
         // Formatting
         int i = 0;
         while(i < roundScoreChoices.length && roundScoreChoices[i] != null) {
-            rounds.append("Round " + (i + 1) + "\n");
+            rounds.append(getString(R.string.round) + (i + 1) + "\n");
             formattedPoints.append(roundPoints[i] + "\n");
             formattedScoreChoices.append(roundScoreChoices[i] + "\n");
             i ++;

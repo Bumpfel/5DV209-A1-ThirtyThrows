@@ -262,7 +262,6 @@ public class DiceGame implements Parcelable {
 
     private int countRoundPoints(final Die BASE_DIE, int dieNr, int countedPoints, final int SCORE_CHOICE_VALUE) {
         if(countedPoints == SCORE_CHOICE_VALUE) {
-//            mTempRoundPoints += countedPoints;
             mTempCountedDice.addAll(mDiceUsedForThisCalc);
             mTempCountedDiceCombos.add(mDiceUsedForThisCalc);
             return countedPoints;
