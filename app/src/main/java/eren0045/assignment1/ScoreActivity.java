@@ -4,15 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+
+import eren0045.assignment1.model.ThirtyThrowsGame;
 
 public class ScoreActivity extends AppCompatActivity {
 
     enum Extras { GAME }
 
-    private DiceGame mGame;
+    private ThirtyThrowsGame mGame;
     private TextView mPointsText;
 //    private TextView mRoundScoresText;
 

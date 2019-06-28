@@ -1,7 +1,7 @@
-package eren0045.assignment1;
+package eren0045.assignment1.model;
 
 public class IllegalMethodCallException extends RuntimeException {
-    IllegalMethodCallException(String msg) {
+    public IllegalMethodCallException(String msg) {
         super(msg);
     }
 }

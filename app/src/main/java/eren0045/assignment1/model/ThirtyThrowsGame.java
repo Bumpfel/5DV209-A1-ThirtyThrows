@@ -1,4 +1,4 @@
-package eren0045.assignment1;
+package eren0045.assignment1.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,7 +8,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DiceGame implements Parcelable {
+public class ThirtyThrowsGame implements Parcelable { //TODO skriv kommentarer (javadoc)
+
+    public enum ScoreChoice {
+        LOW(0),
+        FOUR(4),
+        FIVE(5),
+        SIX(6),
+        SEVEN(7),
+        EIGHT(8),
+        NINE(9),
+        TEN(10),
+        ELEVEN(11),
+        TWELVE(12),
+        ;
+
+        private int value;
+
+        ScoreChoice(int n) {
+            value = n;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
 
     private final int MAX_ROLLS = 3;
     private final int MAX_ROUNDS = 10;
@@ -17,7 +42,7 @@ public class DiceGame implements Parcelable {
     private ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
     private ArrayList<ScoreChoice> mAvailableScoreChoices;
 
-    private boolean mIsStarted = false;
+    private boolean mHasStarted = false;
     private int mRollsLeft;
     private int mCurrentRound;
     private int mTotalPoints;
@@ -30,9 +55,9 @@ public class DiceGame implements Parcelable {
     private ArrayList<Die> mDiceUsedForThisCalc;
     private ArrayList<Die> mCountedDice;
 
-    private final String TAG = "------DiceGame";
+    private final String TAG = "------ThirtyThrowsGame";
 
-    public DiceGame() {
+    public ThirtyThrowsGame() {
         for(int i = 0; i < NR_OF_DICE; i ++) {
             mDice.add(new Die());
         }
@@ -51,7 +76,7 @@ public class DiceGame implements Parcelable {
     public void newRound() throws IllegalMethodCallException {
         if(isRoundOver()) {
             mCurrentRound++;
-            mIsStarted = true;
+            mHasStarted = true;
             mRollsLeft = MAX_ROLLS - 1;
             resetDice();
         }
@@ -93,6 +118,11 @@ public class DiceGame implements Parcelable {
             throw new IllegalMethodCallException("Cannot roll dice. Round is over");
     }
 
+    public void toggleDie(Die die) {
+        if(mDice.contains(die))
+            die.toggleDie();
+    }
+
     private void resetDice() {
         for(Die die : mDice) {
             die.reset();
@@ -109,10 +139,10 @@ public class DiceGame implements Parcelable {
 
     public ArrayList<Die> getDice() {
         return new ArrayList<>(mDice);
-    } // TODO fortfarande ett problem att Die har tillgängliga metoder som modifierar tärningen. skulle kunna lägga Die (och DiceGame) i separat model-paket
+    } // TODO fortfarande ett problem att Die har tillgängliga metoder som modifierar tärningen. skulle kunna lägga Die (och ThirtyThrowsGame) i separat model-paket
 
     public boolean hasStarted() {
-        return mIsStarted;
+        return mHasStarted;
     }
 
     public boolean isRoundOver() {
@@ -130,13 +160,16 @@ public class DiceGame implements Parcelable {
     /**
      * Records round points, score choice, removes score choice for next round
      */
-    public void setScore(ScoreChoice scoreChoice, int points) {
-        if(!Arrays.asList(mRoundScoreChoices).contains(scoreChoice)) {
+    public void setScore(ScoreChoice scoreChoice) {
+        if(mAvailableScoreChoices.contains(scoreChoice)) {
+            int points = getPoints(scoreChoice);
             mTotalPoints += points;
             mRoundPoints[mCurrentRound - 1] = points;
             mRoundScoreChoices[mCurrentRound - 1] = scoreChoice.toString();
             mAvailableScoreChoices.remove(scoreChoice);
         }
+        else
+            throw new IllegalMethodCallException("Score choice not available. Use getAvailableScoreChoices() to get available score choices");
     }
 
 
@@ -260,21 +293,21 @@ public class DiceGame implements Parcelable {
     }
 
     // constructor used by Creator
-    private DiceGame(Parcel in) {
+    private ThirtyThrowsGame(Parcel in) {
         mTotalPoints = in.readInt();
         mRoundPoints = in.createIntArray();
         mRoundScoreChoices = in.createStringArray();
     }
 
     // used to restore object from parcel
-    public static final Creator<DiceGame> CREATOR = new Creator<DiceGame>() {
+    public static final Creator<ThirtyThrowsGame> CREATOR = new Creator<ThirtyThrowsGame>() {
 
-        public DiceGame createFromParcel(Parcel in) {
-            return new DiceGame(in);
+        public ThirtyThrowsGame createFromParcel(Parcel in) {
+            return new ThirtyThrowsGame(in);
         }
 
-        public DiceGame[] newArray(int size) {
-            return new DiceGame[size];
+        public ThirtyThrowsGame[] newArray(int size) {
+            return new ThirtyThrowsGame[size];
         }
     };
 

@@ -1,22 +1,18 @@
-package eren0045.assignment1;
+package eren0045.assignment1.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Random;
 
-class Die implements Parcelable {
+public class Die implements Parcelable {
 
-    private int mValue = 0;
+    private int mValue;
     private Random mRandom = new Random();
     private boolean mEnabled = true;
 
     Die() {
         roll();
-    }
-
-    public String toString() {
-        return "" + getValue();
     }
 
     void setDie(int n) { // TODO for debugging
@@ -37,12 +33,16 @@ class Die implements Parcelable {
         mEnabled = !mEnabled;
     }
 
-    boolean isEnabled() {
+    public boolean isEnabled() {
         return mEnabled;
     }
 
-    int getValue() {
+    public int getValue() {
         return mValue;
+    }
+
+    public String toString() {
+        return "" + getValue();
     }
 
 
@@ -72,7 +72,6 @@ class Die implements Parcelable {
         }
     };
 
-    // usage optional (?) must be implemented tho
     public int describeContents() {
         return 0;
     }

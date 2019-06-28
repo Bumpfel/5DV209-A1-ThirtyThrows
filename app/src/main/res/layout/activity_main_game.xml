@@ -118,10 +118,26 @@
             android:layout_height="wrap_content"
             android:text="@string/available_score_choices" />
 
-        <Spinner
-            android:id="@+id/score_dropdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/score_confirmation_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/score_confirmation"
+                android:textSize="18sp" />
+
+            <Spinner
+                android:id="@+id/score_dropdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
         <!--android:entries="@array/score_choices"-->
 
         <TextView
@@ -129,13 +145,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notification text"
-            android:textSize="18sp" />
-
-        <Button
-            android:id="@+id/score_confirmation_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/score_confirmation"
             android:textSize="18sp" />
 
         <Button
