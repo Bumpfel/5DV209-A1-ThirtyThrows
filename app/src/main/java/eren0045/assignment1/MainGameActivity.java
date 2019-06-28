@@ -17,6 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MainGameActivity extends AppCompatActivity {
 
@@ -226,7 +227,6 @@ public class MainGameActivity extends AppCompatActivity {
         }
 
         updateRollButtonText();
-//        mAvailableScoreChoices = mGame.getAvailableScoreChoices();
         mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
         mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
         mNotificationText.setText(savedState.getString(STATE.NOTIFICATION.toString()));
@@ -235,10 +235,6 @@ public class MainGameActivity extends AppCompatActivity {
 
     private void startRound() {
         mGame.newRound();
-
-//        mScoreChoiceText.setVisibility(View.VISIBLE);
-//        mScoreChoiceDropdown.setVisibility(View.VISIBLE);
-//        mScoreChoiceText.setText(R.string.available_score_choices);
 
         for(ImageButton dieButton: mDice.keySet()) {
             updateDieButtonImage(dieButton);
@@ -285,8 +281,7 @@ public class MainGameActivity extends AppCompatActivity {
         mAvailableScoreChoices.remove(selectedScoreChoice); //TODO prob prettier to get score choices from mGame
         mSpinnerAdapter.notifyDataSetChanged();
         mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
-//        mScoreChoiceDropdown.setVisibility(View.GONE);
-        mScoreChoiceDropdown.setAlpha((float) INACTIVE_VIEW_ALPHA);
+        mScoreChoiceDropdown.setAlpha(INACTIVE_VIEW_ALPHA);
         mScoreChoiceText.setVisibility(View.GONE);
 
         prepareNextRound();
@@ -306,11 +301,6 @@ public class MainGameActivity extends AppCompatActivity {
             mRollButton.setVisibility(View.VISIBLE);
             mRollButton.setText(R.string.roll);
             mRollButton.setOnClickListener(view -> startRound());
-
-//            mAvailableScoreChoices = mGame.getAvailableScoreChoices();
-//            mSpinnerAdapter.clear();
-//            mSpinnerAdapter.addAll(mAvailableScoreChoices);
-//            mSpinnerAdapter.notifyDataSetChanged();
         }
     }
 
@@ -324,18 +314,13 @@ public class MainGameActivity extends AppCompatActivity {
         ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
         int bestScoreChoiceIndex = mAvailableScoreChoices.indexOf(bestScoreChoice);
         int selectedIndex = mScoreChoiceDropdown.getSelectedItemPosition();
-
         // This is needed because some item will always be selected in the dropdown, and onItemSelect will not run if attempting to select the same option as is selected
         if(selectedIndex == bestScoreChoiceIndex) {
             int points = mGame.getPoints(bestScoreChoice);
             mScoreChoiceText.setText(getString(R.string.present_score_choice, bestScoreChoice, points));
         }
         mScoreChoiceDropdown.setAlpha(1);
-//        mScoreChoiceDropdown.setVisibility(View.VISIBLE);
         mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false);
-//        mScoreChoiceText.setText(getString(R.string.present_best_score_choice, mChosenScore, highestScore));
-//        mNotificationText.setText("The highest score (" + mChosenScore + ") was pre-selected"); //It yields a score of " + highestScore + " using " + mGame.getCountedDiceForBestScoreChoice()
-        //TODO visa tärningskombinationer som användes för poängräkning (i UI't)
 
         mScoreConfirmationButton.setVisibility(View.VISIBLE);
         mNotificationText.setText(getString(R.string.round_over));

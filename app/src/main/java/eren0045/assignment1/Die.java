@@ -24,7 +24,8 @@ class Die implements Parcelable {
     } //TODO temp
 
     void roll() {
-        mValue = mRandom.nextInt(6) + 1;
+        if(mEnabled)
+            mValue = mRandom.nextInt(6) + 1;
     }
 
     void reset() {
