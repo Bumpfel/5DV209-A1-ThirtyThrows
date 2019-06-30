@@ -209,8 +209,7 @@ public class ThirtyThrowsGame implements Parcelable { //TODO skriv kommentarer (
     }
 
 
-    //TODO behöver nog göra om lite hur poängen sparas. känns som ett bättre sätt att returnera värden istället för att spara allt i globala variabler. särskilt eftersom det buggar ibland
-    //TODO (viktigt) poängräkning funkar inte alltid med tre tärningar (t.ex. 6,5,4,4,4,3
+    //TODO (viktigt) poängräkning funkar inte alltid med tre eller fler tärningar av samma värde (t.ex. 6,5,4,4,4,3
     public int getPoints(ScoreChoice scoreChoice) {
         Collections.sort(mDice, (d1, d2) -> d1.getValue() > d2.getValue() ? -1 : 1);
 

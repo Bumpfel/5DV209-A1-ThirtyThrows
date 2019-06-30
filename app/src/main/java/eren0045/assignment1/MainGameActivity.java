@@ -48,7 +48,7 @@ public class MainGameActivity extends AppCompatActivity {
     private enum STATE { GAME, NOTIFICATION, SELECTED_SCORE }
 
     private final String TAG = "---MainGameActivity---";
-    private final float INACTIVE_VIEW_ALPHA = 0.15f;
+    private final float INACTIVE_VIEW_ALPHA = 0.2f;
 
     private int[] activeDiceImages = { 0, R.drawable.white1, R.drawable.white2, R.drawable.white3, R.drawable.white4, R.drawable.white5, R.drawable.white6 };
     private int[] inactiveDiceImages = { 0, R.drawable.grey1, R.drawable.grey2, R.drawable.grey3, R.drawable.grey4, R.drawable.grey5, R.drawable.grey6 };
@@ -201,7 +201,6 @@ public class MainGameActivity extends AppCompatActivity {
         else if(mGame.isRoundScored()) {
             mScoreConfirmationButton.setVisibility(View.INVISIBLE);
             mRollButton.setVisibility(View.VISIBLE);
-//            mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
         }
         else if(mGame.isRoundOver()) {
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
