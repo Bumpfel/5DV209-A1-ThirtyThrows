@@ -18,6 +18,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainGameActivity.class));
         });
 
+        Button howToPlayButton = findViewById(R.id.how_to_play_button);
+        howToPlayButton.setOnClickListener(view -> {
+            startActivity(new Intent(this, HowToPlayActivity.class));
+        });
+
     }
 
 }

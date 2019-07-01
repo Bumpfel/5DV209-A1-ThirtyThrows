@@ -9,10 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".HowToPlayActivity"></activity>
         <activity android:name=".ScoreActivity" />
         <activity
             android:name=".ScorePopupActivity"
-            android:theme="@style/Popup"/>
+            android:theme="@style/Popup" />
         <activity android:name=".MainGameActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

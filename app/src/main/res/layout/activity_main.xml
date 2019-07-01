@@ -35,6 +35,12 @@
             android:text="@string/start_game"
             android:textSize="18sp" />
 
+        <Button
+            android:id="@+id/how_to_play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/how_to_play_header" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
