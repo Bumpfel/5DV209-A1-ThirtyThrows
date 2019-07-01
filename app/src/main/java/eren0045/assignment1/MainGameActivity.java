@@ -5,12 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -23,8 +24,11 @@ import eren0045.assignment1.model.ThirtyThrowsGame;
 
 public class MainGameActivity extends AppCompatActivity {
 
+    private final String TAG = "--MainGameActivity";
+
     private ImageButton[] mDieButtons;
 
+    private LinearLayout mCombinationsLayout;
     private TextView mNotificationText;
     private TextView mScoreChoiceText;
     private Button mRollButton;
@@ -64,6 +68,9 @@ public class MainGameActivity extends AppCompatActivity {
             dieButton.setOnClickListener(view -> toggleDie(dieButton));
             dieButton.setBackgroundColor(Color.TRANSPARENT);
         }
+
+        // Layout that holds a visual representation of dice combinations for the selected score choice
+        mCombinationsLayout = findViewById(R.id.dice_combinations_layout);
 
         // Roll button
         mRollButton = findViewById(R.id.roll_button);
@@ -129,7 +136,11 @@ public class MainGameActivity extends AppCompatActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
-                        mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, mGame.getPoints(selectedScore)));
+
+                        ArrayList<ArrayList<Die>> diceCombos = new ArrayList<>();
+                        int points = mGame.getPoints(selectedScore, diceCombos);
+                        mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, points));
+                        displayDiceCombos(diceCombos);
                     }
 
                     @Override
@@ -234,8 +245,10 @@ public class MainGameActivity extends AppCompatActivity {
                 int selectedIndex = mScoreChoiceDropdown.getSelectedItemPosition();
                 // This is needed because some item will always be selected in the dropdown, and onItemSelect will not run if attempting to select the same option as is selected
                 if (selectedIndex == bestScoreChoiceIndex) {
-                    int points = mGame.getPoints(bestScoreChoice);
+                    ArrayList<ArrayList<Die>> diceCombos = new ArrayList<>();
+                    int points = mGame.getPoints(bestScoreChoice, diceCombos);
                     mScoreChoiceText.setText(getString(R.string.present_score_choice, bestScoreChoice, points));
+                    displayDiceCombos(diceCombos);
                 }
                 mScoreChoiceDropdown.setAlpha(1);
                 mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false);
@@ -274,6 +287,8 @@ public class MainGameActivity extends AppCompatActivity {
         mScoreChoiceDropdown.setAlpha(INACTIVE_VIEW_ALPHA);
         mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
         mScoreChoiceText.setVisibility(View.GONE);
+
+        mCombinationsLayout.removeAllViews();
 
         // if game is over, present score screen, pop activity stack
         if(mGame.isOver()) {
@@ -332,6 +347,26 @@ public class MainGameActivity extends AppCompatActivity {
         else
             rollText = getString(R.string.roll_button, mGame.getRollsLeft());
         mRollButton.setText(rollText);
+    }
+
+
+    // displays dice combinations graphically
+    private void displayDiceCombos(ArrayList<ArrayList<Die>> diceCombos) {
+        if(mGame.isRoundOver() && mGame.hasStarted() && !mGame.isRoundScored()) {
+            mCombinationsLayout.removeAllViews();
+
+            for(ArrayList<Die> dice : diceCombos) {
+                ImageView img = null;
+                for(Die die : dice) {
+                    img = new ImageView(this);
+                    img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
+                    img.setPadding(-25,0,-30,0);
+                    mCombinationsLayout.addView(img);
+                }
+                img.setPadding(-25,0,-15,0);
+
+            }
+        }
     }
 
 }

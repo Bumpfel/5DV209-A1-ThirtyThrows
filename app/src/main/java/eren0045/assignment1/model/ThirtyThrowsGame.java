@@ -35,6 +35,8 @@ public class ThirtyThrowsGame implements Parcelable {
         }
     }
 
+    private ThirtyThrowsScoreCalculator scoreCalculator = new ThirtyThrowsScoreCalculator();
+
     private final int MAX_ROLLS = 3;
     private final int MAX_ROUNDS = 10;
     private final int NR_OF_DICE = 6;
@@ -75,7 +77,7 @@ public class ThirtyThrowsGame implements Parcelable {
             resetDice();
         }
         else
-            throw new IllegalMethodCallException("Cannot create new round until round is finished");
+            throw new IllegalMethodCallException("Cannot start new round until round is finished");
     }
 
 
@@ -128,35 +130,39 @@ public class ThirtyThrowsGame implements Parcelable {
     }
 
     /**
-     * @return The game dice (a copy)
+     * @return the game dice (a copy)
      */
     public ArrayList<Die> getDice() {
         return new ArrayList<>(mDice);
     }
 
     /**
-     * @return whether game has started or not
+     * Tells whether game has started or not
+     * @return
      */
     public boolean hasStarted() {
         return mHasStarted;
     }
 
     /**
-     * @return whether current round is over or not
+     * Tells whether current round is over or not
+     * @return
      */
     public boolean isRoundOver() {
         return mRollsLeft == 0;
     }
 
     /**
-     * @return whether a score has been chosen for the current round or not
+     * Tells whether a score has been chosen for the current round or not
+     * @return
      */
     public boolean isRoundScored() {
         return mAvailableScoreChoices.size() == (MAX_ROUNDS - mCurrentRound) && hasStarted();
     }
 
     /**
-     * @return whether game has ended or not
+     * Tells whether the game has ended or not
+     * @return
      */
     public boolean isOver() {
         return mCurrentRound == MAX_ROUNDS;
@@ -167,7 +173,7 @@ public class ThirtyThrowsGame implements Parcelable {
      */
     public void setScore(ScoreChoice scoreChoice) {
         if(mAvailableScoreChoices.contains(scoreChoice)) {
-            int points = getPoints(scoreChoice);
+            int points = getPoints(scoreChoice, new ArrayList<>());
             mTotalPoints += points;
             mRoundPoints[mCurrentRound - 1] = points;
             mRoundScoreChoices[mCurrentRound - 1] = scoreChoice.toString();
@@ -195,8 +201,8 @@ public class ThirtyThrowsGame implements Parcelable {
 
 
     /**
-     * Finds the score that yields the highest points for the rolled dice given the available scoring choices in descending order
-     * @return highest score
+     * Finds the score that yields the most points for the rolled dice given the available scoring choices in descending order
+     * @return "best" score choice
      */
     public ScoreChoice getBestScoreChoice() {
         int highestPoints = 0;
@@ -204,7 +210,7 @@ public class ThirtyThrowsGame implements Parcelable {
 
         int thisPoints;
         for(ScoreChoice scoreChoice : mAvailableScoreChoices) {
-            thisPoints = getPoints(scoreChoice);
+            thisPoints = getPoints(scoreChoice, new ArrayList<>());
             if(thisPoints > highestPoints) {
                 highestPoints = thisPoints;
                 bestScoreChoice = scoreChoice;
@@ -217,121 +223,13 @@ public class ThirtyThrowsGame implements Parcelable {
     /**
      * Returns the total points for the chosen score with the rolled dice
      * @param scoreChoice the chosen score
+     * @param diceCombos combinations used will be written to this parameter. Note: this is meant to be used as a return value
      * @return total points for the chosen score
      */
-    public int getPoints(ScoreChoice scoreChoice) {
-        int points = 0;
-
-        // Calculation for choice LOW
-        if(scoreChoice == ScoreChoice.LOW) {
-            for (Die die : mDice) {
-                if (die.getValue() <= 3) {
-                    points += die.getValue();
-                }
-            }
-        }
-        // Calculation for choice that isn't LOW
-        else {
-            int startingDiceAmount = 1;
-            if(scoreChoice.getValue() > 6)
-                startingDiceAmount = 2;
-            ArrayList<Die> countedDice = findDiceCombinations(scoreChoice.getValue(), 0, 0, startingDiceAmount, new Stack<>(), new ArrayList<>(mDice), new ArrayList<>());
-            points = countDiceValues(countedDice);
-       }
-
-        return points;
+    public int getPoints(ScoreChoice scoreChoice, ArrayList<ArrayList<Die>> diceCombos) {
+        return scoreCalculator.calculatePoints(scoreChoice, mDice, diceCombos);
     }
 
-    /**
-     * Recursive method that automatically finds the combinations of the given dice for the supplied score choice (prioritizes searching for combinations with as few dice as possible)
-     * @param SCORE_CHOICE_VALUE the chosen score
-     * @param dieIndex used internally in calculation. should start on 0
-     * @param startDieIndex used internally in calculation. should start on 0
-     * @param diceToUseAmount nr of dice to count with. should start on 1 (or possibly 2 if scorehoice is above 6 and cannot be produced by only one die)
-     * @param diceUsed used for calculation. start with an empty arraylist
-     * @param dice the available dice. will be modified (send a copy)
-     * @param countedDice dice that has been counted in a valid combination. start with an empty arraylist
-     * @return all the dice that is a part of valid combinations
-     */
-    private ArrayList<Die> findDiceCombinations(final int SCORE_CHOICE_VALUE, int dieIndex, int startDieIndex, int diceToUseAmount, Stack<Die> diceUsed, ArrayList<Die> dice, ArrayList<Die> countedDice) {
-        Die currentDie;
-
-        // add the amount of dice that are supposed to be used for the calculation
-        while(diceToUseAmount > diceUsed.size() && dieIndex < dice.size()) {
-            currentDie = dice.get(dieIndex ++);
-            diceUsed.push(currentDie);
-        }
-        int points = countDiceValues(diceUsed);
-
-        // combination found
-        if(points == SCORE_CHOICE_VALUE) {
-            countedDice.addAll(diceUsed);
-//            countedCombos.add(new ArrayList<>(diceUsed));
-            while(!diceUsed.isEmpty()) {
-                Die tempDie = diceUsed.pop();
-                startDieIndex = dice.indexOf(tempDie);
-                dice.remove(tempDie);
-            }
-            dieIndex = startDieIndex;
-        }
-        // combination not valid, remove last entry
-        if(points > SCORE_CHOICE_VALUE || diceUsed.size() == diceToUseAmount) {
-            diceUsed.pop();
-
-            if (diceUsed.isEmpty()) // only used for the single dice tests to avoid going through them more than once
-                startDieIndex++;
-        }
-
-        // added last dice of the "series" - do resets
-        if(dieIndex == dice.size()) {
-            if(!diceUsed.isEmpty()) {
-                diceUsed.pop();
-            }
-
-            if(startDieIndex >= dice.size() - 1 || diceToUseAmount > dice.size() - startDieIndex + diceUsed.size()) {
-                // all combinations with the amount of dice exhausted. increase nr of dice to use
-                if(diceUsed.isEmpty()) {
-                    startDieIndex = diceToUseAmount - 1;
-                    dieIndex = 0;
-                    diceToUseAmount ++;
-                    // no longer possible to find a valid combination
-                    if(diceToUseAmount > dice.size())
-                        return countedDice;
-                    diceUsed.clear();
-                }
-                // more combinations with the current diceToUseAmount possible
-                else {
-                    dieIndex = dice.indexOf(diceUsed.peek()) + 1;
-
-                    diceUsed.pop();
-                    if(diceToUseAmount > dice.size() - dieIndex + diceUsed.size() && !diceUsed.isEmpty()) {
-                        dieIndex = dice.indexOf(diceUsed.peek()) + 1;
-                        diceUsed.pop();
-                    }
-                    startDieIndex = diceToUseAmount - 1 + dieIndex - 1;
-                }
-            }
-            else {
-                startDieIndex ++;
-                dieIndex = startDieIndex;
-            }
-        }
-        findDiceCombinations(SCORE_CHOICE_VALUE, dieIndex, startDieIndex, diceToUseAmount, diceUsed, dice, countedDice);
-        return countedDice;
-    }
-
-    /**
-     * Sums up the dice values in an iterable
-     * @param dice the iterable you want to sum up
-     * @return total value of the dice in the iterable
-     */
-    private int countDiceValues(Iterable<Die> dice) {
-        int value = 0;
-        for(Die die : dice) {
-            value += die.getValue();
-        }
-        return value;
-    }
 
     /**
      * Returns the points for each round

@@ -1,23 +1,29 @@
 <resources>
+    <!-- Start page-->
     <string name="app_name">Thirty Throws</string>
     <string name="start_game">Start Game</string>
-    <string name="start_new_game">Start New Game</string>
     <string name="how_to_play">How to Play</string>
+    <string name="dice">Two dice</string>
+
+
+    <!-- Main Game -->
+    <string name="round_nr">Round #%1$d</string>
     <string name="roll_button">Roll (%1$d)</string>
     <string name="roll">Roll!</string>
-    <string name="reset_button">Reset Game</string>
+    <string name="reset_button">Abort Game</string>
     <string name="round_over">Round Over. Make your score choice</string>
     <string name="total_points">Total Points %1$d</string>
-    <string name="available_score_choices">Available score choices</string>
-    <string name="round_nr">Round #%1$d</string>
     <string name="new_round">Roll to start the next round</string>
     <string name="present_score_choice">%1$s gives you a round score of %2$d</string>
-    <!--<string name="present_best_score_choice">%1$s gives you a round score of %2$d (auto-selected best)</string>-->
+    <string name="score_confirmation">Use choice</string>
 
-    <string name="results">Results</string>
-    <string name="round">Round #</string>
-    <string name="points">Points %1$d</string>
-    <string name="score_choice">Score used</string>
+    <!-- Dice (content description)  -->
+    <string name="die1">Die 1</string>
+    <string name="die2">Die 2</string>
+    <string name="die3">Die 3</string>
+    <string name="die4">Die 4</string>
+    <string name="die5">Die 5</string>
+    <string name="die6">Die 6</string>
 
     <!--<string-array name="score_choices">-->
     <!--<item>LOW</item>-->
@@ -32,36 +38,32 @@
     <!--<item>TWELVE</item>-->
     <!--</string-array>-->
 
-    <string name="score_confirmation">Use choice</string>
 
-    <!--Dice (content description) -->
-    <string name="die1">Die 1</string>
-    <string name="die2">Die 2</string>
-    <string name="die3">Die 3</string>
-    <string name="die4">Die 4</string>
-    <string name="die5">Die 5</string>
-    <string name="die6">Die 6</string>
+    <!-- Results -->
+    <string name="start_new_game">Start New Game</string>
+    <string name="results">Results</string>
+    <string name="round">Round #</string>
+    <string name="points">Points %1$d</string>
 
 
-
-    <!-- how to play -->
+    <!-- How to play -->
     <string name="how_to_play_header">How to play</string>
     <string name="how_to_play_text">
         You get six dice to roll.\n
         A game consists of 10 rounds. In each round you can roll the dice three times. You can choose to hold a die by clicking on it (it will turn grey to indicate its status).\n
         \n
         Scoring\n
-        After a round is finished, you have to choose a score. A score is consumed once chosen, meaning you can only choose a particular score once per game.\n
-        There are ten score choices: Low, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, and Twelve. \n
         Each die may only be counted once.\n
+        After a round is finished, you have to choose a score. A score choice is consumed once chosen, meaning you can only choose a particular score once per game.\n
+        There are ten different scores choices: Low, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, and Twelve. \n
         Low is counted a little different than the others: All dice with a value of three or lower counts towards your points.\n
-        For the other choices: all dice that can be combined to sum up to the exact score choice yields points. \n
+        For the other choices: all dice that can be used (in combination with other dice or by itself) to sum up to the exact score choice yields points. \n
         E.g. a roll of 2, 5, 4, 3, 6, 2 would yield 18 points for the choice NINE since 5 + 4, and 6 + 3 both sums up to 9 points. \n
         \n
-        The game automatically calculates the points for the chosen score. The score that yields the most points will automatically be selected after each round (but it does not mean it\'s always the best choice).\n
+        The game automatically calculates the points for the chosen score. The score choice that yields the most points will automatically be selected after each round (but it does not mean it\'s always the best choice).\n
         If two or more score choices yields the same amount of points, the highest score choice will be selected.\n
         \n
-        You can see which score choices you have left by expanding the drop down list during a round, or if you click to view the scoreboard by clicking the \"Total points\" in the bottom left corner.\n
+        You can see which score choices you have left by expanding the drop down list during a round. You can also click on \"Total points\" in the bottom left corner to view the current score board.\n
     </string>
 
 </resources>
