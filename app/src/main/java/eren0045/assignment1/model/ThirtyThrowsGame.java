@@ -40,7 +40,7 @@ public class ThirtyThrowsGame implements Parcelable {
     private final int NR_OF_DICE = 6;
 
     private ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
-    private ArrayList<ScoreChoice> mAvailableScoreChoices;    // TODO ev ändra till LinkedList för ngt bättre prestanda
+    private ArrayList<ScoreChoice> mAvailableScoreChoices = new ArrayList<>();
 
     private boolean mHasStarted = false;
     private int mRollsLeft;
@@ -51,15 +51,14 @@ public class ThirtyThrowsGame implements Parcelable {
     private int[] mRoundPoints = new int[MAX_ROUNDS];
     private String[] mRoundScoreChoices = new String[MAX_ROUNDS];
 
-
-    private final String TAG = "------ThirtyThrowsGame";
-
     public ThirtyThrowsGame() {
         for(int i = 0; i < NR_OF_DICE; i ++) {
             mDice.add(new Die());
         }
 
-        mAvailableScoreChoices = new ArrayList<>(Arrays.asList(ScoreChoice.values()));
+        for(ScoreChoice choice : ScoreChoice.values()) {
+            mAvailableScoreChoices.add(choice);
+        }
         Collections.reverse(mAvailableScoreChoices);
     }
 
@@ -394,7 +393,6 @@ public class ThirtyThrowsGame implements Parcelable {
 
         // restore score choice arraylist
         int[] ordinals = in.createIntArray();
-        mAvailableScoreChoices = new ArrayList<>();
         for(int i = 0; i < ordinals.length; i ++) {
             ScoreChoice choice = ScoreChoice.values()[ordinals[i]];
             mAvailableScoreChoices.add(choice);

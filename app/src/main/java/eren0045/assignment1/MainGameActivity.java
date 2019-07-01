@@ -23,20 +23,11 @@ import eren0045.assignment1.model.ThirtyThrowsGame;
 
 public class MainGameActivity extends AppCompatActivity {
 
-    private ArrayList<ThirtyThrowsGame.ScoreChoice> mAvailableScoreChoices;
-//    private ArrayAdapter<ThirtyThrowsGame.ScoreChoice> mSpinnerAdapter;
-
-    private ImageButton mDieButton1;
-    private ImageButton mDieButton2;
-    private ImageButton mDieButton3;
-    private ImageButton mDieButton4;
-    private ImageButton mDieButton5;
-    private ImageButton mDieButton6;
+    private ImageButton[] mDieButtons;
 
     private TextView mNotificationText;
     private TextView mScoreChoiceText;
     private Button mRollButton;
-    private Button mResetButton;
     private Spinner mScoreChoiceDropdown;
     private Button mScoreConfirmationButton;
     private TextView mRoundNrText;
@@ -47,7 +38,6 @@ public class MainGameActivity extends AppCompatActivity {
 
     private enum STATE { GAME, NOTIFICATION, SELECTED_SCORE }
 
-    private final String TAG = "---MainGameActivity---";
     private final float INACTIVE_VIEW_ALPHA = 0.2f;
 
     private int[] activeDiceImages = { 0, R.drawable.white1, R.drawable.white2, R.drawable.white3, R.drawable.white4, R.drawable.white5, R.drawable.white6 };
@@ -56,7 +46,6 @@ public class MainGameActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedState) {
-        Log.d(TAG, "onCreate() called");
 
         super.onCreate(savedState);
         setContentView(R.layout.activity_main_game);
@@ -66,19 +55,12 @@ public class MainGameActivity extends AppCompatActivity {
             setStartValues();
     }
 
+
     // Sets values that aren't changed (view-references and listeners)
     // Runs for both new and restored activity
     private void initialize() {
-        // tie buttons to variables
-        mDieButton1 = findViewById(R.id.die1);
-        mDieButton2 = findViewById(R.id.die2);
-        mDieButton3 = findViewById(R.id.die3);
-        mDieButton4 = findViewById(R.id.die4);
-        mDieButton5 = findViewById(R.id.die5);
-        mDieButton6 = findViewById(R.id.die6);
-
-        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
-        for(ImageButton dieButton : dieButtons) {
+        mDieButtons = new ImageButton[] { findViewById(R.id.die1), findViewById(R.id.die2), findViewById(R.id.die3), findViewById(R.id.die4), findViewById(R.id.die5), findViewById(R.id.die6) };
+        for(ImageButton dieButton : mDieButtons) {
             dieButton.setOnClickListener(view -> toggleDie(dieButton));
             dieButton.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -88,8 +70,8 @@ public class MainGameActivity extends AppCompatActivity {
         mRollButton.setOnClickListener(view -> play());
 
         // Action for reset button
-        mResetButton = findViewById(R.id.reset_button);
-        mResetButton.setOnClickListener(view -> finish());
+        Button resetButton = findViewById(R.id.reset_button);
+        resetButton.setOnClickListener(view -> finish());
 
         mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
 
@@ -113,17 +95,15 @@ public class MainGameActivity extends AppCompatActivity {
         });
     }
 
+
     // sets initial values for the views (game startup)
     private void setStartValues() {
         mGame = new ThirtyThrowsGame();
 
-        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
-
         ArrayList<Die> gameDice = mGame.getDice();
         for(int i = 0; i < gameDice.size(); i ++) {
-            final ImageButton DIE_BUTTON = dieButtons[i];
-            DIE_BUTTON.setEnabled(false);
-            mDice.put(DIE_BUTTON, gameDice.get(i));
+            mDieButtons[i].setEnabled(false);
+            mDice.put(mDieButtons[i], gameDice.get(i));
         }
 
         mRollButton.setVisibility(View.VISIBLE);
@@ -139,19 +119,17 @@ public class MainGameActivity extends AppCompatActivity {
         initDropdown();
     }
 
+
     // initializes the score choice drop down
     private void initDropdown() {
-        Log.d(TAG, "initializing dropdown");
-        mAvailableScoreChoices = mGame.getAvailableScoreChoices();
-        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mAvailableScoreChoices);
+        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mGame.getAvailableScoreChoices());
         mScoreChoiceDropdown.setAdapter(spinnerAdapter);
         mScoreChoiceDropdown.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
-                        mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, mGame.getPoints(selectedScore))); //, countedDice.toString()
-//                        Log.e(TAG, "Selected " + selectedScore);
+                        mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, mGame.getPoints(selectedScore)));
                     }
 
                     @Override
@@ -166,7 +144,6 @@ public class MainGameActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
-        Log.d(TAG, "onSaveInstanceState() called");
         state.putString(STATE.NOTIFICATION.toString(), mNotificationText.getText().toString());
         state.putString(STATE.SELECTED_SCORE.toString(), mScoreChoiceDropdown.getSelectedItem().toString());
 
@@ -181,14 +158,12 @@ public class MainGameActivity extends AppCompatActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle savedState) {
-        Log.d(TAG, "onRestoreInstanceState() called");
         super.onRestoreInstanceState(savedState);
 
         mGame = savedState.getParcelable(STATE.GAME.toString());
-        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
         ArrayList<Die> dice = mGame.getDice();
-        for(int i = 0; i < dieButtons.length; i ++) {
-            mDice.put(dieButtons[i], dice.get(i));
+        for(int i = 0; i < mDieButtons.length; i ++) {
+            mDice.put(mDieButtons[i], dice.get(i));
         }
 
         updateAllDieButtons();
@@ -205,13 +180,8 @@ public class MainGameActivity extends AppCompatActivity {
         else if(mGame.isRoundOver()) {
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
             mRollButton.setVisibility(View.GONE);
-
-            // restore dropdown score selection
             mScoreChoiceDropdown.setAlpha(1);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
-            ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf(savedState.getString(STATE.SELECTED_SCORE.toString()));
-            int chosenScoreIndex = mAvailableScoreChoices.indexOf(selectedScore);
-            mScoreChoiceDropdown.setSelection(chosenScoreIndex);
         }
         // Game running
         else {
@@ -220,6 +190,10 @@ public class MainGameActivity extends AppCompatActivity {
             mRollButton.setVisibility(View.VISIBLE);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
         }
+        // restore dropdown score selection
+        ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf(savedState.getString(STATE.SELECTED_SCORE.toString()));
+        int chosenScoreIndex = mGame.getAvailableScoreChoices().indexOf(selectedScore);
+        mScoreChoiceDropdown.setSelection(chosenScoreIndex);
 
         updateRollButtonText();
         mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
@@ -256,7 +230,7 @@ public class MainGameActivity extends AppCompatActivity {
 
                 //Select best score option
                 ThirtyThrowsGame.ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
-                int bestScoreChoiceIndex = mAvailableScoreChoices.indexOf(bestScoreChoice);
+                int bestScoreChoiceIndex = mGame.getAvailableScoreChoices().indexOf(bestScoreChoice);
                 int selectedIndex = mScoreChoiceDropdown.getSelectedItemPosition();
                 // This is needed because some item will always be selected in the dropdown, and onItemSelect will not run if attempting to select the same option as is selected
                 if (selectedIndex == bestScoreChoiceIndex) {
@@ -293,8 +267,7 @@ public class MainGameActivity extends AppCompatActivity {
         ThirtyThrowsGame.ScoreChoice selectedScoreChoice = (ThirtyThrowsGame.ScoreChoice) mScoreChoiceDropdown.getSelectedItem();
         mGame.setScore(selectedScoreChoice);
 
-        mAvailableScoreChoices = mGame.getAvailableScoreChoices();
-        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mAvailableScoreChoices);
+        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mGame.getAvailableScoreChoices());
         mScoreChoiceDropdown.setAdapter(spinnerAdapter);
 
         mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
@@ -340,6 +313,7 @@ public class MainGameActivity extends AppCompatActivity {
         dieButton.setImageDrawable(getResources().getDrawable(imgId));
     }
 
+
     // updates all die image buttons
     private void updateAllDieButtons() {
         if(!mGame.hasStarted())
@@ -359,39 +333,5 @@ public class MainGameActivity extends AppCompatActivity {
             rollText = getString(R.string.roll_button, mGame.getRollsLeft());
         mRollButton.setText(rollText);
     }
-
-
-//    //TODO for debugging. delete when done
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        Log.d(TAG, "onStart() called");
-//    }
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        Log.d(TAG, "onResume() called");
-//    }
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        Log.d(TAG, "onPause() called");
-//    }
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        Log.d(TAG, "onStop() called");
-//    }
-//    @Override
-//    protected void onRestart() {
-//        super.onRestart();
-//        Log.d(TAG, "onRestart() called");
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        Log.d(TAG, "onDestroy() called");
-//    }
 
 }
