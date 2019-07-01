@@ -113,7 +113,7 @@ public class MainGameActivity extends AppCompatActivity {
         });
     }
 
-
+    // sets initial values for the views (game startup)
     private void setStartValues() {
         mGame = new ThirtyThrowsGame();
 
@@ -139,8 +139,9 @@ public class MainGameActivity extends AppCompatActivity {
         initDropdown();
     }
 
-
+    // initializes the score choice drop down
     private void initDropdown() {
+        Log.d(TAG, "initializing dropdown");
         mAvailableScoreChoices = mGame.getAvailableScoreChoices();
         ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mAvailableScoreChoices);
         mScoreChoiceDropdown.setAdapter(spinnerAdapter);
@@ -150,7 +151,7 @@ public class MainGameActivity extends AppCompatActivity {
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
                         mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, mGame.getPoints(selectedScore))); //, countedDice.toString()
-                        Log.e(TAG, "Selected " + selectedScore);
+//                        Log.e(TAG, "Selected " + selectedScore);
                     }
 
                     @Override
@@ -179,18 +180,16 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedState) { // TODO undersök varför getPoints() körs två ggr
+    protected void onRestoreInstanceState(Bundle savedState) {
         Log.d(TAG, "onRestoreInstanceState() called");
         super.onRestoreInstanceState(savedState);
 
-        mDice.put(mDieButton1, savedState.getParcelable("" + mDieButton1.getId()));
-        mDice.put(mDieButton2, savedState.getParcelable("" + mDieButton2.getId()));
-        mDice.put(mDieButton3, savedState.getParcelable("" + mDieButton3.getId()));
-        mDice.put(mDieButton4, savedState.getParcelable("" + mDieButton4.getId()));
-        mDice.put(mDieButton5, savedState.getParcelable("" + mDieButton5.getId()));
-        mDice.put(mDieButton6, savedState.getParcelable("" + mDieButton6.getId()));
-
         mGame = savedState.getParcelable(STATE.GAME.toString());
+        ImageButton[] dieButtons = { mDieButton1, mDieButton2, mDieButton3, mDieButton4, mDieButton5, mDieButton6 };
+        ArrayList<Die> dice = mGame.getDice();
+        for(int i = 0; i < dieButtons.length; i ++) {
+            mDice.put(dieButtons[i], dice.get(i));
+        }
 
         updateAllDieButtons();
         initDropdown();
@@ -201,6 +200,7 @@ public class MainGameActivity extends AppCompatActivity {
         else if(mGame.isRoundScored()) {
             mScoreConfirmationButton.setVisibility(View.INVISIBLE);
             mRollButton.setVisibility(View.VISIBLE);
+            mScoreChoiceText.setVisibility(View.GONE);
         }
         else if(mGame.isRoundOver()) {
             mScoreConfirmationButton.setVisibility(View.VISIBLE);
@@ -213,7 +213,8 @@ public class MainGameActivity extends AppCompatActivity {
             int chosenScoreIndex = mAvailableScoreChoices.indexOf(selectedScore);
             mScoreChoiceDropdown.setSelection(chosenScoreIndex);
         }
-        else { // Game running
+        // Game running
+        else {
             mScoreConfirmationButton.setVisibility(View.INVISIBLE);
             mScoreChoiceText.setVisibility(View.GONE);
             mRollButton.setVisibility(View.VISIBLE);
@@ -244,6 +245,7 @@ public class MainGameActivity extends AppCompatActivity {
             mTotalScoreText.setVisibility(View.VISIBLE);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
         }
+        // Game running - rolls dice and selects the "best" score choice
         else {
             mGame.rollDice();
             updateAllDieButtons();
@@ -273,6 +275,7 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
 
+    // toggles whether to roll the die the next time or not
     private void toggleDie(ImageButton dieButton) {
         Die thisDie = mDice.get(dieButton);
 
@@ -283,17 +286,14 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
 
+    // round is over. uses the score choice selected in the drop down
     private void useScore() {
         mScoreConfirmationButton.setVisibility(View.INVISIBLE);
 
         ThirtyThrowsGame.ScoreChoice selectedScoreChoice = (ThirtyThrowsGame.ScoreChoice) mScoreChoiceDropdown.getSelectedItem();
         mGame.setScore(selectedScoreChoice);
 
-//        mAvailableScoreChoices.remove(selectedScoreChoice); //TODO (done) prob prettier to get score choices from mGame
-//        mSpinnerAdapter.notifyDataSetChanged();
-
         mAvailableScoreChoices = mGame.getAvailableScoreChoices();
-        //TODO not the prettiest
         ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mAvailableScoreChoices);
         mScoreChoiceDropdown.setAdapter(spinnerAdapter);
 
@@ -302,22 +302,24 @@ public class MainGameActivity extends AppCompatActivity {
         mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
         mScoreChoiceText.setVisibility(View.GONE);
 
-        // preparations for next round.
+        // if game is over, present score screen, pop activity stack
         if(mGame.isOver()) {
             Intent scoreScreen = new Intent(this, ScoreActivity.class);
             scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
             startActivity(scoreScreen);
             finish();
         }
+        // preparations for next round
         else {
             mScoreChoiceText.setText(null);
             mNotificationText.setText(R.string.new_round);
             mRollButton.setVisibility(View.VISIBLE);
-            mRollButton.setText(R.string.roll);
+            updateRollButtonText();
         }
     }
 
 
+    // updates the die image button to reflect the current state of the die
     private void updateDieButtonImage(ImageButton dieButton) {
         Die thisDie = mDice.get(dieButton);
 
@@ -338,6 +340,7 @@ public class MainGameActivity extends AppCompatActivity {
         dieButton.setImageDrawable(getResources().getDrawable(imgId));
     }
 
+    // updates all die image buttons
     private void updateAllDieButtons() {
         if(!mGame.hasStarted())
             return;
@@ -347,7 +350,7 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
 
-
+    // updates the text of the roll button to reflect the current state of the round (shows nr of rolls left if round is started)
     private void updateRollButtonText() {
         String rollText;
         if(mGame.isRoundOver())

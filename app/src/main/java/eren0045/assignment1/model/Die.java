@@ -15,28 +15,39 @@ public class Die implements Parcelable {
         roll();
     }
 
-    void setDie(int n) { // TODO for debugging
-        mValue = n;
-    } //TODO temp
-
+    /**
+     * Rolls the die if die is enabled
+     */
     void roll() {
         if(mEnabled)
             mValue = mRandom.nextInt(6) + 1;
     }
 
+    /**
+     * enables the die and rolls it
+     */
     void reset() {
         mEnabled = true;
         roll();
     }
 
+    /**
+     * toggles whether the die can be rolled or not
+     */
     void toggleDie() {
         mEnabled = !mEnabled;
     }
 
+    /**
+     * @return whether die is enabled or not
+     */
     public boolean isEnabled() {
         return mEnabled;
     }
 
+    /**
+     * @return the die value
+     */
     public int getValue() {
         return mValue;
     }
@@ -53,11 +64,13 @@ public class Die implements Parcelable {
     // used to write object to Parcel
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mValue);
+        out.writeInt(mEnabled ? 1 : 0);
     }
 
     // constructor used by Creator
     private Die(Parcel in) {
         mValue = in.readInt();
+        mEnabled = in.readInt() == 1;
     }
 
     // used to restore object from parcel
