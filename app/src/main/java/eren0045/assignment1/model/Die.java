@@ -8,7 +8,7 @@ import java.util.Random;
 public class Die implements Parcelable {
 
     private int mValue;
-    private Random mRandom = new Random();
+    private final Random mRandom = new Random();
     private boolean mEnabled = true;
 
     Die() {
