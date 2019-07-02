@@ -23,7 +23,7 @@ public class ThirtyThrowsGame implements Parcelable {
         TWELVE(12),
         ;
 
-        private int value;
+        private final int value;
 
         ScoreChoice(int n) {
             value = n;
@@ -34,13 +34,13 @@ public class ThirtyThrowsGame implements Parcelable {
         }
     }
 
-    private ThirtyThrowsScoreCalculator scoreCalculator = new ThirtyThrowsScoreCalculator();
+    private final ThirtyThrowsScoreCalculator scoreCalculator = new ThirtyThrowsScoreCalculator();
 
     private final int MAX_ROLLS = 3;
     private final int MAX_ROUNDS = 10;
     private final int NR_OF_DICE = 6;
 
-    private ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
+    private final ArrayList<Die> mDice = new ArrayList<>(NR_OF_DICE);
     private ArrayList<ScoreChoice> mAvailableScoreChoices = new ArrayList<>();
 
     private boolean mHasStarted = false;
