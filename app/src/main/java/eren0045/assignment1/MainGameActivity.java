@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -356,18 +357,23 @@ public class MainGameActivity extends AppCompatActivity {
     // displays dice combinations graphically
     private void displayDiceCombos(ArrayList<ArrayList<Die>> diceCombos) {
         if(mGame.isRoundOver() && mGame.hasStarted() && !mGame.isRoundScored()) {
-            Log.e(TAG, "displayCombos()");
             mCombinationsLayout.removeAllViews();
 
+            int dpScale = (int) getResources().getDisplayMetrics().density;
+            int sidePadding = -35 * dpScale;
+            
             for(ArrayList<Die> dice : diceCombos) {
-                ImageView img = null;
+                ImageView img;
                 for(Die die : dice) {
                     img = new ImageView(this);
                     img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
+
                     mCombinationsLayout.addView(img);
-                    img.setPadding(-40,0,-40,0);
+                    img.setPadding(sidePadding,0, sidePadding,0);
                 }
-                img.setPadding(-40,0,-10,0);
+                Space filler = new Space(this);
+                filler.setMinimumWidth(30 * dpScale);
+                mCombinationsLayout.addView(filler);
 
             }
         }
