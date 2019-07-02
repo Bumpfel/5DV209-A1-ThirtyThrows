@@ -380,7 +380,8 @@ public class MainGameActivity extends AppCompatActivity {
                 mCombinationsLayout.addView(filler, viewSz, 0);
                 lastChildIndex ++;
             }
-            mCombinationsLayout.removeViewAt(lastChildIndex - 1); // remove last filler to center the dice
+            if(lastChildIndex > 0)
+                mCombinationsLayout.removeViewAt(lastChildIndex - 1); // remove last filler to center the dice
         }
     }
 
