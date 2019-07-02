@@ -37,7 +37,7 @@
         <LinearLayout
             android:id="@+id/dice_row1"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
+            android:layout_height="65dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -70,7 +70,7 @@
         <LinearLayout
             android:id="@+id/dice_row2"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
+            android:layout_height="65dp"
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:orientation="horizontal">
@@ -102,31 +102,24 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/score_choice_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingStart="0dp"
+            android:paddingLeft="0dp"
+            android:paddingEnd="10dp"
+            android:paddingRight="10dp"
+            android:text="score choice text" />
+
+        <LinearLayout
+            android:id="@+id/dice_combinations_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:visibility="gone">
 
-            <TextView
-                android:id="@+id/score_choice_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="0dp"
-                android:paddingLeft="0dp"
-                android:paddingRight="10dp"
-                android:paddingEnd="10dp"
-                android:text="score choice text" />
-
-            <LinearLayout
-                android:id="@+id/dice_combinations_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal"
-                tools:visibility="visible">
-
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -167,17 +160,5 @@
             android:textSize="18sp" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/reset_button"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/reset_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

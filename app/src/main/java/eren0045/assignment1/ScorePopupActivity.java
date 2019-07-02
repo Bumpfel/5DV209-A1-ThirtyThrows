@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class ScorePopupActivity extends ScoreActivity {
 
@@ -11,6 +12,9 @@ public class ScorePopupActivity extends ScoreActivity {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+
+        TextView header = findViewById(R.id.result_header);
+        header.setText(R.string.results);
 
         Button newGameButton = findViewById(R.id.start_new_game_button);
         newGameButton.setVisibility(View.GONE);

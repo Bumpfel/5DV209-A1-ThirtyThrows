@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,6 +24,8 @@ import eren0045.assignment1.model.Die;
 import eren0045.assignment1.model.ThirtyThrowsGame;
 
 public class MainGameActivity extends AppCompatActivity {
+
+    private final String TAG = "--MainGameActivity";
 
     private ImageButton[] mDieButtons;
 
@@ -69,14 +72,15 @@ public class MainGameActivity extends AppCompatActivity {
 
         // Layout that holds a visual representation of dice combinations for the selected score choice
         mCombinationsLayout = findViewById(R.id.dice_combinations_layout);
+        mCombinationsLayout.setVisibility(View.GONE);
 
         // Roll button
         mRollButton = findViewById(R.id.roll_button);
         mRollButton.setOnClickListener(view -> play());
 
-        // Action for reset button
-        Button resetButton = findViewById(R.id.reset_button);
-        resetButton.setOnClickListener(view -> finish());
+//        // Action for reset button
+//        Button resetButton = findViewById(R.id.reset_button);
+//        resetButton.setOnClickListener(view -> finish());
 
         mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
 
@@ -189,6 +193,7 @@ public class MainGameActivity extends AppCompatActivity {
             mRollButton.setVisibility(View.GONE);
             mScoreChoiceDropdown.setAlpha(1);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+            mCombinationsLayout.setVisibility(View.VISIBLE);
         }
         // Game running
         else {
@@ -226,7 +231,7 @@ public class MainGameActivity extends AppCompatActivity {
             mTotalScoreText.setVisibility(View.VISIBLE);
             mScoreChoiceDropdown.setVisibility(View.VISIBLE);
         }
-        // Game running - rolls dice and selects the "best" score choice
+        // Game running - rolls dice and selects the "best" score choice if round is over
         else {
             mGame.rollDice();
             updateAllDieButtons();
@@ -234,6 +239,7 @@ public class MainGameActivity extends AppCompatActivity {
             if(mGame.isRoundOver()) {
                 mRollButton.setVisibility(View.GONE);
                 mScoreChoiceText.setVisibility(View.VISIBLE);
+                mCombinationsLayout.setVisibility(View.VISIBLE);
 
                 //Select best score option
                 ThirtyThrowsGame.ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
@@ -285,6 +291,7 @@ public class MainGameActivity extends AppCompatActivity {
         mScoreChoiceText.setVisibility(View.GONE);
 
         mCombinationsLayout.removeAllViews();
+        mCombinationsLayout.setVisibility(View.GONE);
 
         // if game is over, present score screen, pop activity stack
         if(mGame.isOver()) {
@@ -349,17 +356,18 @@ public class MainGameActivity extends AppCompatActivity {
     // displays dice combinations graphically
     private void displayDiceCombos(ArrayList<ArrayList<Die>> diceCombos) {
         if(mGame.isRoundOver() && mGame.hasStarted() && !mGame.isRoundScored()) {
+            Log.e(TAG, "displayCombos()");
             mCombinationsLayout.removeAllViews();
 
             for(ArrayList<Die> dice : diceCombos) {
                 ImageView img = null;
                 for(Die die : dice) {
                     img = new ImageView(this);
-                    img.setImageDrawable(getResources().getDrawable(activeDiceImages[die.getValue()]));
-                    img.setPadding(-25,0,-30,0);
+                    img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
                     mCombinationsLayout.addView(img);
+                    img.setPadding(-40,0,-40,0);
                 }
-                img.setPadding(-25,0,-15,0);
+                img.setPadding(-40,0,-10,0);
 
             }
         }

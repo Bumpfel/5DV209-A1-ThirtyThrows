@@ -43,7 +43,8 @@
 
     <!-- Results -->
     <string name="start_new_game">Start New Game</string>
-    <string name="results">Game over</string>
+    <string name="results">Results</string>
+    <string name="game_over">Game over</string>
     <string name="round">Round #</string>
     <string name="points">Points %1$d</string>
     <string name="result_total_points">Your total points is %1$d</string>
