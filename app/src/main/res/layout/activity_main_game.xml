@@ -115,7 +115,7 @@
         <LinearLayout
             android:id="@+id/dice_combinations_layout"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
             tools:visibility="gone">

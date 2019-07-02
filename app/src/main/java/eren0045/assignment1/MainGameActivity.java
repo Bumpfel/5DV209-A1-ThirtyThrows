@@ -359,23 +359,28 @@ public class MainGameActivity extends AppCompatActivity {
         if(mGame.isRoundOver() && mGame.hasStarted() && !mGame.isRoundScored()) {
             mCombinationsLayout.removeAllViews();
 
-            int dpScale = (int) getResources().getDisplayMetrics().density;
-            int sidePadding = -35 * dpScale;
-            
+            // decide sizes and padding to use for the images and filler
+            float dpScale = getResources().getDisplayMetrics().density;
+            int padding = (int) (2 * dpScale);
+            int viewSz = (int) (25 * dpScale);
+
+            int lastChildIndex = 0;
             for(ArrayList<Die> dice : diceCombos) {
                 ImageView img;
+                // add an image for each die in the combination
                 for(Die die : dice) {
                     img = new ImageView(this);
                     img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
-
-                    mCombinationsLayout.addView(img);
-                    img.setPadding(sidePadding,0, sidePadding,0);
+                    mCombinationsLayout.addView(img, viewSz, viewSz);
+                    lastChildIndex ++;
+                    img.setPadding(padding, 0, padding, 0);
                 }
+                // add space filler between combinations
                 Space filler = new Space(this);
-                filler.setMinimumWidth(30 * dpScale);
-                mCombinationsLayout.addView(filler);
-
+                mCombinationsLayout.addView(filler, viewSz, 0);
+                lastChildIndex ++;
             }
+            mCombinationsLayout.removeViewAt(lastChildIndex - 1); // remove last filler to center the dice
         }
     }
 
