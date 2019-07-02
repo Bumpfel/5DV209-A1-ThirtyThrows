@@ -5,7 +5,7 @@ import java.util.Stack;
 
 
 // I made this class since the game class was getting very big, and also, this class would not be needed if one wanted to disable the automatic score calculation
-public class ThirtyThrowsScoreCalculator {
+class ThirtyThrowsScoreCalculator {
 
     /**
      * Returns the total points for the chosen score with the rolled dice
@@ -44,17 +44,16 @@ public class ThirtyThrowsScoreCalculator {
     }
 
     /**
-     * Helper method for findDiceCombinations (supplies a more understandable interface, esp. if one wished to raise the access level)
+     * Helper method for findDiceCombinations (provides a more understandable interface, esp. if one wished to raise the access level)
      * @param scoreChoice chosen score
      * @param gameDice the rolled dice of the game
-     * @return
+     * @return all valid dice combinations
      */
     private ArrayList<ArrayList<Die>> getDiceCombinations(ThirtyThrowsGame.ScoreChoice scoreChoice, ArrayList<Die> gameDice) {
         int startingDiceAmount = 1;
         if(scoreChoice.getValue() > 6)
             startingDiceAmount = 2;
-        ArrayList<ArrayList<Die>> countedDiceCombos = findDiceCombinations(scoreChoice.getValue(), 0, 0, startingDiceAmount, new Stack<>(), new ArrayList<>(gameDice), new ArrayList<>());
-        return countedDiceCombos;
+        return findDiceCombinations(scoreChoice.getValue(), 0, 0, startingDiceAmount, new Stack<>(), gameDice, new ArrayList<>());
     }
 
     /**
@@ -66,7 +65,7 @@ public class ThirtyThrowsScoreCalculator {
      * @param diceUsed used for calculation. start with an empty arraylist
      * @param dice the available dice. will be modified (send a copy)
      * @param countedDiceCombos stores dice combinations. start with a new arraylist
-     * @return all the dice that is a part of valid combinations
+     * @return all dice that is a part of valid combinations
      */
     private ArrayList<ArrayList<Die>> findDiceCombinations(final int SCORE_CHOICE_VALUE, int dieIndex, int startDieIndex, int diceToUseAmount, Stack<Die> diceUsed, ArrayList<Die> dice, ArrayList<ArrayList<Die>> countedDiceCombos) {
         Die currentDie;
@@ -140,7 +139,7 @@ public class ThirtyThrowsScoreCalculator {
      * @param dice the iterable you want to sum up
      * @return total value of the dice in the iterable
      */
-    int countDiceValues(Iterable<Die> dice) {
+    private int countDiceValues(Iterable<Die> dice) {
         int value = 0;
         for(Die die : dice) {
             value += die.getValue();

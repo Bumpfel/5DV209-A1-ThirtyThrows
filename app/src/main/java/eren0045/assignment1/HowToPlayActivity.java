@@ -13,8 +13,6 @@ public class HowToPlayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_how_to_play);
 
         Button goBackButton = findViewById(R.id.go_back_button);
-        goBackButton.setOnClickListener(view -> {
-            finish();
-        });
+        goBackButton.setOnClickListener(view -> finish() );
     }
 }

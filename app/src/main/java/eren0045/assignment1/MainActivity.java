@@ -14,14 +14,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button startGameButton = findViewById(R.id.start_game_button);
-        startGameButton.setOnClickListener(view -> {
-            startActivity(new Intent(this, MainGameActivity.class));
-        });
+        Intent gameIntent = new Intent(this, MainGameActivity.class);
+        startGameButton.setOnClickListener(view -> startActivity(gameIntent));
 
         Button howToPlayButton = findViewById(R.id.how_to_play_button);
-        howToPlayButton.setOnClickListener(view -> {
-            startActivity(new Intent(this, HowToPlayActivity.class));
-        });
+        Intent howToPlayScreen = new Intent(this, HowToPlayActivity.class);
+        howToPlayButton.setOnClickListener(view -> startActivity(howToPlayScreen));
 
     }
 

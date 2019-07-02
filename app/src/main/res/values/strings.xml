@@ -1,4 +1,5 @@
 <resources>
+
     <!-- Start page-->
     <string name="app_name">Thirty Throws</string>
     <string name="start_game">Start Game</string>
@@ -16,6 +17,7 @@
     <string name="new_round">Roll to start the next round</string>
     <string name="present_score_choice">%1$s gives you a round score of %2$d</string>
     <string name="score_confirmation">Use choice</string>
+
 
     <!-- Dice (content description)  -->
     <string name="die1">Die 1</string>
@@ -41,9 +43,11 @@
 
     <!-- Results -->
     <string name="start_new_game">Start New Game</string>
-    <string name="results">Results</string>
+    <string name="results">Game over</string>
     <string name="round">Round #</string>
     <string name="points">Points %1$d</string>
+    <string name="result_total_points">Your total points is %1$d</string>
+    <string name="start_screen">Return to start screen</string>
 
 
     <!-- How to play -->
@@ -62,6 +66,7 @@
         \n
         The game automatically calculates the points for the chosen score. The score choice that yields the most points will automatically be selected after each round (but it does not mean it\'s always the best choice).\n
         If two or more score choices yields the same amount of points, the highest score choice will be selected.\n
+        The game will use the first combinations found. There might be alternative combinations, but the total points will always be the same nevertheless.\n
         \n
         You can see which score choices you have left by expanding the drop down list during a round. You can also click on \"Total points\" in the bottom left corner to view the current score board.\n
     </string>

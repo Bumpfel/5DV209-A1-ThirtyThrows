@@ -24,8 +24,6 @@ import eren0045.assignment1.model.ThirtyThrowsGame;
 
 public class MainGameActivity extends AppCompatActivity {
 
-    private final String TAG = "--MainGameActivity";
-
     private ImageButton[] mDieButtons;
 
     private LinearLayout mCombinationsLayout;
@@ -88,9 +86,7 @@ public class MainGameActivity extends AppCompatActivity {
 
         // Use score choice button
         mScoreConfirmationButton = findViewById(R.id.score_confirmation_button);
-        mScoreConfirmationButton.setOnClickListener(view -> {
-            useScore();
-        });
+        mScoreConfirmationButton.setOnClickListener(view -> useScore() );
 
         // game info texts
         mRoundNrText = findViewById(R.id.round_nr);
@@ -359,7 +355,7 @@ public class MainGameActivity extends AppCompatActivity {
                 ImageView img = null;
                 for(Die die : dice) {
                     img = new ImageView(this);
-                    img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
+                    img.setImageDrawable(getResources().getDrawable(activeDiceImages[die.getValue()]));
                     img.setPadding(-25,0,-30,0);
                     mCombinationsLayout.addView(img);
                 }

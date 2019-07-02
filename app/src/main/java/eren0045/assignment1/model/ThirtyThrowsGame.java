@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Stack;
 
 public class ThirtyThrowsGame implements Parcelable {
 
@@ -58,9 +57,10 @@ public class ThirtyThrowsGame implements Parcelable {
             mDice.add(new Die());
         }
 
-        for(ScoreChoice choice : ScoreChoice.values()) {
-            mAvailableScoreChoices.add(choice);
-        }
+//        for(ScoreChoice choice : ScoreChoice.values()) {
+//            mAvailableScoreChoices.add(choice);
+//        }
+        mAvailableScoreChoices.addAll(Arrays.asList(ScoreChoice.values()));
         Collections.reverse(mAvailableScoreChoices);
     }
 
@@ -137,32 +137,28 @@ public class ThirtyThrowsGame implements Parcelable {
     }
 
     /**
-     * Tells whether game has started or not
-     * @return
+     * @return Tells whether game has started or not
      */
     public boolean hasStarted() {
         return mHasStarted;
     }
 
     /**
-     * Tells whether current round is over or not
-     * @return
+     * @return Tells whether current round is over or not
      */
     public boolean isRoundOver() {
         return mRollsLeft == 0;
     }
 
     /**
-     * Tells whether a score has been chosen for the current round or not
-     * @return
+     * @return Tells whether a score has been chosen for the current round or not
      */
     public boolean isRoundScored() {
         return mAvailableScoreChoices.size() == (MAX_ROUNDS - mCurrentRound) && hasStarted();
     }
 
     /**
-     * Tells whether the game has ended or not
-     * @return
+     * @return Tells whether the game has ended or not
      */
     public boolean isOver() {
         return mCurrentRound == MAX_ROUNDS;
@@ -227,7 +223,7 @@ public class ThirtyThrowsGame implements Parcelable {
      * @return total points for the chosen score
      */
     public int getPoints(ScoreChoice scoreChoice, ArrayList<ArrayList<Die>> diceCombos) {
-        return scoreCalculator.calculatePoints(scoreChoice, mDice, diceCombos);
+        return scoreCalculator.calculatePoints(scoreChoice, new ArrayList<>(mDice), diceCombos);
     }
 
 
@@ -285,9 +281,7 @@ public class ThirtyThrowsGame implements Parcelable {
         mCurrentRound = in.readInt();
 
         Die[] temp = in.createTypedArray(Die.CREATOR);
-        for(Die die : temp) {
-            mDice.add(die);
-        }
+        mDice.addAll(Arrays.asList(temp));
 
         // restore score choice arraylist
         int[] ordinals = in.createIntArray();

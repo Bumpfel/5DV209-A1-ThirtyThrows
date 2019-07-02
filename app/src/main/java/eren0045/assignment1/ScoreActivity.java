@@ -13,32 +13,28 @@ public class ScoreActivity extends AppCompatActivity {
 
     enum Extras { GAME }
 
-    private ThirtyThrowsGame mGame;
-    private TextView mPointsText;
-//    private TextView mRoundScoresText;
-
     private final String TAG = "---ScoreActivity";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score);
 
+        //get game from intent
         Intent intent = getIntent();
-        mGame = intent.getParcelableExtra(Extras.GAME.toString());
+        ThirtyThrowsGame game = intent.getParcelableExtra(Extras.GAME.toString());
 
         // total score
-        mPointsText = findViewById(R.id.total_points_textview);
-        mPointsText.setText("You got a total score of " + mGame.getTotalPoints());
+        TextView pointsText = findViewById(R.id.total_points_textview);
+        pointsText.setText(getString(R.string.result_total_points, game.getTotalPoints()));
 
         // Score data
         TextView roundsText = findViewById(R.id.rounds_textview);
         TextView roundPointsText = findViewById(R.id.round_points_textview);
         TextView roundScoreChoicesText = findViewById(R.id.round_score_choices_textview);
 
-        int[] roundPoints = mGame.getRoundPoints();
-        String[] roundScoreChoices = mGame.getRoundScoreChoices();
+        int[] roundPoints = game.getRoundPoints();
+        String[] roundScoreChoices = game.getRoundScoreChoices();
 
         StringBuilder rounds = new StringBuilder();
         StringBuilder formattedPoints = new StringBuilder();
@@ -62,6 +58,9 @@ public class ScoreActivity extends AppCompatActivity {
             startActivity(new Intent(ScoreActivity.this, MainGameActivity.class));
             finish();
         });
+
+        Button startScreenButton = findViewById(R.id.start_screen_button);
+        startScreenButton.setOnClickListener(view -> finish() );
 
     }
 

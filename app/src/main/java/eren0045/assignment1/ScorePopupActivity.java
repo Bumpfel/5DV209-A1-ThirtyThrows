@@ -12,10 +12,11 @@ public class ScorePopupActivity extends ScoreActivity {
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
 
-        Button newGame = findViewById(R.id.start_new_game_button);
-        newGame.setVisibility(View.GONE);
-//        newGame.setText("Close");
-//        newGame.setOnClickListener(view -> finish());
+        Button newGameButton = findViewById(R.id.start_new_game_button);
+        newGameButton.setVisibility(View.GONE);
+
+        Button startScreenButton = findViewById(R.id.start_screen_button);
+        startScreenButton.setVisibility(View.GONE);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
