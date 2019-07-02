@@ -4,33 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="eren0045.assignment1.MainActivity">
+    android:background="@color/backgroundColourWhite"
+    tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/start_screen_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:contentDescription="@string/dice"
+            app:srcCompat="@drawable/dice" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/result_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textSize="24sp" />
+            android:textSize="36sp"
+            app:fontFamily="@font/alfa_slab_one" />
 
         <Button
-            android:id="@+id/start_button"
+            android:id="@+id/start_game_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/start_game" />
+            android:text="@string/start_game"
+            android:textSize="18sp" />
 
         <Button
-            android:id="@+id/rules_button"
+            android:id="@+id/how_to_play_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/how_to_play" />
+            android:text="@string/how_to_play_header" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

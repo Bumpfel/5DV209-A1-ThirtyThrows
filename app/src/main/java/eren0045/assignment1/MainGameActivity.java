@@ -1,189 +1,388 @@
 package eren0045.assignment1;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Space;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import eren0045.assignment1.model.Die;
+import eren0045.assignment1.model.ThirtyThrowsGame;
+
 public class MainGameActivity extends AppCompatActivity {
 
-    private Button mDieButton1;
-    private Button mDieButton2;
-    private Button mDieButton3;
-    private Button mDieButton4;
-    private Button mDieButton5;
-    private Button mDieButton6;
+    private final String TAG = "--MainGameActivity";
 
-    private TextView mNotificationMsg;
+    private ImageButton[] mDieButtons;
+
+    private LinearLayout mCombinationsLayout;
+    private TextView mNotificationText;
+    private TextView mScoreChoiceText;
     private Button mRollButton;
+    private Spinner mScoreChoiceDropdown;
+    private Button mScoreConfirmationButton;
+    private TextView mRoundNrText;
+    private TextView mTotalScoreText;
 
-    private int nrOfRolls = 0;
-    private final int MAX_ROLLS = 3;
+    private ThirtyThrowsGame mGame = new ThirtyThrowsGame();
+    private Map<ImageButton, Die> mDice = new HashMap<>();
 
-    private enum STATE { ROLLS, NOTIFICATION }
+    private enum STATE { GAME, NOTIFICATION, SELECTED_SCORE }
 
-    private static final String TAG = "MainGameActivity";
+    private final float INACTIVE_VIEW_ALPHA = 0.2f;
 
-    private Map<Button, Die> dice = new HashMap<>();
+    private int[] activeDiceImages = { 0, R.drawable.white1, R.drawable.white2, R.drawable.white3, R.drawable.white4, R.drawable.white5, R.drawable.white6 };
+    private int[] inactiveDiceImages = { 0, R.drawable.grey1, R.drawable.grey2, R.drawable.grey3, R.drawable.grey4, R.drawable.grey5, R.drawable.grey6 };
+    private int[] finishedDiceImages = { 0, R.drawable.red1, R.drawable.red2, R.drawable.red3, R.drawable.red4, R.drawable.red5, R.drawable.red6 };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle savedState) {
+
+        super.onCreate(savedState);
         setContentView(R.layout.activity_main_game);
 
-        // tie buttons to variables
-        mDieButton1 = findViewById(R.id.die1);
-        mDieButton2 = findViewById(R.id.die2);
-        mDieButton3 = findViewById(R.id.die3);
-        mDieButton4 = findViewById(R.id.die4);
-        mDieButton5 = findViewById(R.id.die5);
-        mDieButton6 = findViewById(R.id.die6);
-        mNotificationMsg = findViewById(R.id.notification_msg);
+        initialize();
+        if(savedState == null)
+            setStartValues();
+    }
+
+
+    // Sets values that aren't changed (view-references and listeners)
+    // Runs for both new and restored activity
+    private void initialize() {
+        mDieButtons = new ImageButton[] { findViewById(R.id.die1), findViewById(R.id.die2), findViewById(R.id.die3), findViewById(R.id.die4), findViewById(R.id.die5), findViewById(R.id.die6) };
+        for(ImageButton dieButton : mDieButtons) {
+            dieButton.setOnClickListener(view -> toggleDie(dieButton));
+            dieButton.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+        // Layout that holds a visual representation of dice combinations for the selected score choice
+        mCombinationsLayout = findViewById(R.id.dice_combinations_layout);
+        mCombinationsLayout.setVisibility(View.GONE);
+
+        // Roll button
         mRollButton = findViewById(R.id.roll_button);
+        mRollButton.setOnClickListener(view -> play());
 
-        Button mRestartButton = findViewById(R.id.restart_button);
-        mRestartButton.setOnClickListener(view -> {
-            nrOfRolls = 0;
-            initializeGame();
+//        // Action for reset button
+//        Button resetButton = findViewById(R.id.reset_button);
+//        resetButton.setOnClickListener(view -> finish());
+
+        mScoreChoiceDropdown = findViewById(R.id.score_dropdown);
+
+        // Notification text
+        mScoreChoiceText = findViewById(R.id.score_choice_text);
+        mNotificationText = findViewById(R.id.notification_text);
+
+        // Use score choice button
+        mScoreConfirmationButton = findViewById(R.id.score_confirmation_button);
+        mScoreConfirmationButton.setOnClickListener(view -> useScore() );
+
+        // game info texts
+        mRoundNrText = findViewById(R.id.round_nr);
+        mTotalScoreText = findViewById(R.id.total_score);
+        mTotalScoreText.setOnClickListener(view -> {
+            Intent scoreScreen = new Intent(this, ScorePopupActivity.class);
+            scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
+            startActivity(scoreScreen);
         });
-
-        mRollButton.setOnClickListener(view -> {
-            rollDice();
-        });
-
-        if(savedInstanceState == null)
-            initializeGame();
-        else
-            restoreGame(savedInstanceState);
     }
 
-    private void initializeGame() {
-        mNotificationMsg.setText("");
 
-        //associate buttons with a java die object
-        dice.put(mDieButton1, new Die());
-        dice.put(mDieButton2, new Die());
-        dice.put(mDieButton3, new Die());
-        dice.put(mDieButton4, new Die());
-        dice.put(mDieButton5, new Die());
-        dice.put(mDieButton6, new Die());
+    // sets initial values for the views (game startup)
+    private void setStartValues() {
+        mGame = new ThirtyThrowsGame();
 
-
-        // set text and onClick action for each die
-        for(Button dieButton : dice.keySet()) {
-
-            dieButton.setAlpha(1);
-            dieButton.setEnabled(true);
-
-            dieButton.setText("" + dice.get(dieButton).getValue());
-            dieButton.setOnClickListener(view -> toggleDie(dieButton));
+        ArrayList<Die> gameDice = mGame.getDice();
+        for(int i = 0; i < gameDice.size(); i ++) {
+            mDieButtons[i].setEnabled(false);
+            mDice.put(mDieButtons[i], gameDice.get(i));
         }
 
-        mRollButton.setEnabled(true);
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
-        mRollButton.setText(rollText);
+        mRollButton.setVisibility(View.VISIBLE);
+
+        mScoreChoiceText.setVisibility(View.GONE);
+        mNotificationText.setText(null);
+        mScoreConfirmationButton.setVisibility(View.INVISIBLE);
+
+        mRoundNrText.setVisibility(View.INVISIBLE);
+        mTotalScoreText.setVisibility(View.INVISIBLE);
+        mTotalScoreText.setText(getString(R.string.total_points, 0));
+
+        initDropdown();
     }
 
-    private void restoreGame(Bundle state) {
-        dice.put(mDieButton1, state.getParcelable("" + mDieButton1.getId()));
-        dice.put(mDieButton2, state.getParcelable("" + mDieButton2.getId()));
-        dice.put(mDieButton3, state.getParcelable("" + mDieButton3.getId()));
-        dice.put(mDieButton4, state.getParcelable("" + mDieButton4.getId()));
-        dice.put(mDieButton5, state.getParcelable("" + mDieButton5.getId()));
-        dice.put(mDieButton6, state.getParcelable("" + mDieButton6.getId()));
 
-        nrOfRolls = state.getInt(STATE.ROLLS.toString());
+    // initializes the score choice drop down
+    private void initDropdown() {
+        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mGame.getAvailableScoreChoices());
+        mScoreChoiceDropdown.setAdapter(spinnerAdapter);
+        mScoreChoiceDropdown.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                        ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf("" + mScoreChoiceDropdown.getSelectedItem());
 
-        for(Button dieButton : dice.keySet()) {
+                        ArrayList<ArrayList<Die>> diceCombos = new ArrayList<>();
+                        int points = mGame.getPoints(selectedScore, diceCombos);
+                        mScoreChoiceText.setText(getString(R.string.present_score_choice, selectedScore, points));
+                        displayDiceCombos(diceCombos);
+                    }
 
-            if(MAX_ROLLS == nrOfRolls) {
-                dieButton.setEnabled(false);
-            }
-            else if(dice.get(dieButton).isDisabled()) {
-                dieButton.setAlpha((float) 0.2);
-            }
-            else {
-                dieButton.setAlpha(1);
-                dieButton.setEnabled(true);
-            }
-            dieButton.setText("" + dice.get(dieButton).getValue());
-            dieButton.setOnClickListener(view -> toggleDie(dieButton));
-        }
-
-        if(MAX_ROLLS == nrOfRolls)
-            mRollButton.setEnabled(false);
-        else
-            mRollButton.setEnabled(true);
-
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
-        mRollButton.setText(rollText);
-
-        mNotificationMsg.setText(state.getString(STATE.NOTIFICATION.toString()));
-
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+                    }
+                }
+        );
+        mScoreChoiceDropdown.setAlpha(INACTIVE_VIEW_ALPHA);
+        mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
-        state.putInt(STATE.ROLLS.toString(), nrOfRolls);
-        //state.putInt(STATE.NOTIFICATION.toString(), mNotificationMsg.getId());
-        state.putString(STATE.NOTIFICATION.toString(), mNotificationMsg.getText().toString());
+        state.putString(STATE.NOTIFICATION.toString(), mNotificationText.getText().toString());
+        state.putString(STATE.SELECTED_SCORE.toString(), mScoreChoiceDropdown.getSelectedItem().toString());
 
-        for(Button dieButton : dice.keySet()) {
-            state.putParcelable("" + dieButton.getId(), dice.get(dieButton));
+        state.putParcelable(STATE.GAME.toString(), mGame);
+        for(ImageButton dieButton : mDice.keySet()) {
+            state.putParcelable("" + dieButton.getId(), mDice.get(dieButton));
         }
 
         super.onSaveInstanceState(state);
     }
 
-    /*@Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) { // gör lite dubbelt i och med denna metod. onCreate körs och sätter värden, sen körs denna och skriver över
-        super.onRestoreInstanceState(savedInstanceState);
-        nrOfRolls = savedInstanceState.getInt(STATE.ROLLS.toString());
-        mRollButton.setText("Roll (" + (MAX_ROLLS - nrOfRolls) + ")");
 
-        if(MAX_ROLLS - nrOfRolls == 0) {
-            mRollButton.setEnabled(false);
+    @Override
+    protected void onRestoreInstanceState(Bundle savedState) {
+        super.onRestoreInstanceState(savedState);
+
+        mGame = savedState.getParcelable(STATE.GAME.toString());
+        ArrayList<Die> dice = mGame.getDice();
+        for(int i = 0; i < mDieButtons.length; i ++) {
+            mDice.put(mDieButtons[i], dice.get(i));
         }
 
-        mNotificationMsg.setText(savedInstanceState.getString(STATE.NOTIFICATION.toString()));
-    }*/
+        updateAllDieButtons();
+        initDropdown();
 
+        if(!mGame.hasStarted()) {
+            setStartValues();
+        }
+        else if(mGame.isRoundScored()) {
+            mScoreConfirmationButton.setVisibility(View.INVISIBLE);
+            mRollButton.setVisibility(View.VISIBLE);
+            mScoreChoiceText.setVisibility(View.GONE);
+        }
+        else if(mGame.isRoundOver()) {
+            mScoreConfirmationButton.setVisibility(View.VISIBLE);
+            mRollButton.setVisibility(View.GONE);
+            mScoreChoiceDropdown.setAlpha(1);
+            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+            mCombinationsLayout.setVisibility(View.VISIBLE);
+        }
+        // Game running
+        else {
+            mScoreConfirmationButton.setVisibility(View.INVISIBLE);
+            mScoreChoiceText.setVisibility(View.GONE);
+            mRollButton.setVisibility(View.VISIBLE);
+            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
+        }
+        // restore dropdown score selection
+        ThirtyThrowsGame.ScoreChoice selectedScore = ThirtyThrowsGame.ScoreChoice.valueOf(savedState.getString(STATE.SELECTED_SCORE.toString()));
+        int chosenScoreIndex = mGame.getAvailableScoreChoices().indexOf(selectedScore);
+        mScoreChoiceDropdown.setSelection(chosenScoreIndex);
 
-    private void toggleDie(Button button) { // TODO possibly re-write
-        Die thisDie = dice.get(button);
-        dice.get(button).toggleDie();
-
-        if(thisDie.isDisabled())
-            button.setAlpha((float) 0.2);
-        else
-            button.setAlpha(1);
+        updateRollButtonText();
+        mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
+        mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
+        mNotificationText.setText(savedState.getString(STATE.NOTIFICATION.toString()));
     }
 
 
-    private void rollDice() {
-        if(nrOfRolls < MAX_ROLLS) {
-            for(Button dieButton : dice.keySet()) {
-                Die thisDie = dice.get(dieButton);
-                if(!thisDie.isDisabled()) {
-                    thisDie.throwDie();
-                    dieButton.setText("" + thisDie.getValue());
-                }
+    private void play() {
+        if(mGame.isRoundOver()) {
+            mGame.newRound();
+
+            for(ImageButton dieButton: mDice.keySet()) {
+                updateDieButtonImage(dieButton);
+                dieButton.setEnabled(true);
             }
-            nrOfRolls ++;
+            updateRollButtonText();
+
+            mNotificationText.setText(null);
+            mRoundNrText.setVisibility(View.VISIBLE);
+            mRoundNrText.setText(getString(R.string.round_nr, mGame.getCurrentRound()));
+            mRollButton.setEnabled(true);
+            mTotalScoreText.setVisibility(View.VISIBLE);
+            mScoreChoiceDropdown.setVisibility(View.VISIBLE);
         }
-        if(nrOfRolls == MAX_ROLLS) {
-            for(Button dieButton : dice.keySet()) {
-                dieButton.setAlpha(1);
-                dieButton.setEnabled(false);
+        // Game running - rolls dice and selects the "best" score choice if round is over
+        else {
+            mGame.rollDice();
+            updateAllDieButtons();
+
+            if(mGame.isRoundOver()) {
+                mRollButton.setVisibility(View.GONE);
+                mScoreChoiceText.setVisibility(View.VISIBLE);
+                mCombinationsLayout.setVisibility(View.VISIBLE);
+
+                //Select best score option
+                ThirtyThrowsGame.ScoreChoice bestScoreChoice = mGame.getBestScoreChoice();
+                int bestScoreChoiceIndex = mGame.getAvailableScoreChoices().indexOf(bestScoreChoice);
+                int selectedIndex = mScoreChoiceDropdown.getSelectedItemPosition();
+                // This is needed because some item will always be selected in the dropdown, and onItemSelect will not run if attempting to select the same option as is selected
+                if (selectedIndex == bestScoreChoiceIndex) {
+                    ArrayList<ArrayList<Die>> diceCombos = new ArrayList<>();
+                    int points = mGame.getPoints(bestScoreChoice, diceCombos);
+                    mScoreChoiceText.setText(getString(R.string.present_score_choice, bestScoreChoice, points));
+                    displayDiceCombos(diceCombos);
+                }
+                mScoreChoiceDropdown.setAlpha(1);
+                mScoreChoiceDropdown.setSelection(bestScoreChoiceIndex, false);
+
+                mScoreConfirmationButton.setVisibility(View.VISIBLE);
+                mNotificationText.setText(getString(R.string.round_over));
             }
-            mRollButton.setEnabled(false);
-            mNotificationMsg.setText(String.format(getString(R.string.game_over_text), "SOME_SCORE"));
+            else
+                updateRollButtonText();
+        }
+    }
+
+
+    // toggles whether to roll the die the next time or not
+    private void toggleDie(ImageButton dieButton) {
+        Die thisDie = mDice.get(dieButton);
+
+        if(thisDie != null) {
+            mGame.toggleDie(thisDie);
+            updateDieButtonImage(dieButton);
+        }
+    }
+
+
+    // round is over. uses the score choice selected in the drop down
+    private void useScore() {
+        mScoreConfirmationButton.setVisibility(View.INVISIBLE);
+
+        ThirtyThrowsGame.ScoreChoice selectedScoreChoice = (ThirtyThrowsGame.ScoreChoice) mScoreChoiceDropdown.getSelectedItem();
+        mGame.setScore(selectedScoreChoice);
+
+        ArrayAdapter<ThirtyThrowsGame.ScoreChoice> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mGame.getAvailableScoreChoices());
+        mScoreChoiceDropdown.setAdapter(spinnerAdapter);
+
+        mTotalScoreText.setText(getString(R.string.total_points, mGame.getTotalPoints()));
+        mScoreChoiceDropdown.setAlpha(INACTIVE_VIEW_ALPHA);
+        mScoreChoiceDropdown.setVisibility(View.INVISIBLE);
+        mScoreChoiceText.setVisibility(View.GONE);
+
+        mCombinationsLayout.removeAllViews();
+        mCombinationsLayout.setVisibility(View.GONE);
+
+        // if game is over, present score screen, pop activity stack
+        if(mGame.isOver()) {
+            Intent scoreScreen = new Intent(this, ScoreActivity.class);
+            scoreScreen.putExtra(ScoreActivity.Extras.GAME.toString(), mGame);
+            startActivity(scoreScreen);
+            finish();
+        }
+        // preparations for next round
+        else {
+            mScoreChoiceText.setText(null);
+            mNotificationText.setText(R.string.new_round);
+            mRollButton.setVisibility(View.VISIBLE);
+            updateRollButtonText();
+        }
+    }
+
+
+    // updates the die image button to reflect the current state of the die
+    private void updateDieButtonImage(ImageButton dieButton) {
+        Die thisDie = mDice.get(dieButton);
+
+        int imgId;
+        int dieValue = thisDie.getValue();
+
+        if(mGame.isRoundOver()) {
+            dieButton.setEnabled(false);
+            imgId = finishedDiceImages[dieValue];
+        }
+        else {
+            if(thisDie.isEnabled())
+                imgId = activeDiceImages[dieValue];
+            else
+                imgId = inactiveDiceImages[dieValue];
         }
 
-        String rollText = String.format(getString(R.string.roll_button), MAX_ROLLS - nrOfRolls);
+        dieButton.setImageDrawable(getResources().getDrawable(imgId));
+    }
+
+
+    // updates all die image buttons
+    private void updateAllDieButtons() {
+        if(!mGame.hasStarted())
+            return;
+        for(ImageButton dieButton : mDice.keySet()) {
+            updateDieButtonImage(dieButton);
+        }
+    }
+
+
+    // updates the text of the roll button to reflect the current state of the round (shows nr of rolls left if round is started)
+    private void updateRollButtonText() {
+        String rollText;
+        if(mGame.isRoundOver())
+            rollText = getString(R.string.roll);
+        else
+            rollText = getString(R.string.roll_button, mGame.getRollsLeft());
         mRollButton.setText(rollText);
     }
+
+
+    // displays dice combinations graphically
+    private void displayDiceCombos(ArrayList<ArrayList<Die>> diceCombos) {
+        if(mGame.isRoundOver() && mGame.hasStarted() && !mGame.isRoundScored()) {
+            mCombinationsLayout.removeAllViews();
+
+            // decide sizes and padding to use for the images and filler
+            float dpScale = getResources().getDisplayMetrics().density;
+            int padding = (int) (2 * dpScale);
+            int viewSz = (int) (25 * dpScale);
+
+            int lastChildIndex = 0;
+            for(ArrayList<Die> dice : diceCombos) {
+                ImageView img;
+                // add an image for each die in the combination
+                for(Die die : dice) {
+                    img = new ImageView(this);
+                    img.setImageDrawable(getResources().getDrawable(finishedDiceImages[die.getValue()]));
+                    mCombinationsLayout.addView(img, viewSz, viewSz);
+                    lastChildIndex ++;
+                    img.setPadding(padding, 0, padding, 0);
+                }
+                // add space filler between combinations
+                Space filler = new Space(this);
+                mCombinationsLayout.addView(filler, viewSz, 0);
+                lastChildIndex ++;
+            }
+            if(lastChildIndex > 0)
+                mCombinationsLayout.removeViewAt(lastChildIndex - 1); // remove last filler to center the dice
+        }
+    }
+
 }

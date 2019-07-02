@@ -1,12 +1,60 @@
 <resources>
-    <!-- MainActivity Strings -->
+
+    <!-- Start page-->
     <string name="app_name">Thirty Throws</string>
     <string name="start_game">Start Game</string>
     <string name="how_to_play">How to Play</string>
+    <string name="dice">Two dice</string>
 
-    <!-- GameActivity -->
+
+    <!-- Main Game -->
+    <string name="round_nr">Round #%1$d</string>
     <string name="roll_button">Roll (%1$d)</string>
-    <string name="restart_button">Restart Game</string>
-    <string name="game_over_text">Game Over. You got %1$s</string>
+    <string name="roll">Roll!</string>
+    <string name="reset_button">Abort Game</string>
+    <string name="round_over">Round Over. Make your score choice</string>
+    <string name="total_points">Total Points %1$d</string>
+    <string name="new_round">Roll to start the next round</string>
+    <string name="present_score_choice">%1$s gives you a round score of %2$d</string>
+    <string name="score_confirmation">Use score</string>
+
+
+    <!-- Dice (content description)  -->
+    <string name="die1">Die 1</string>
+    <string name="die2">Die 2</string>
+    <string name="die3">Die 3</string>
+    <string name="die4">Die 4</string>
+    <string name="die5">Die 5</string>
+    <string name="die6">Die 6</string>
+
+    <!--<string-array name="score_choices">-->
+    <!--<item>LOW</item>-->
+    <!--<item>FOUR</item>-->
+    <!--<item>FIVE</item>-->
+    <!--<item>SIX</item>-->
+    <!--<item>SEVEN</item>-->
+    <!--<item>EIGHT</item>-->
+    <!--<item>NINE</item>-->
+    <!--<item>TEN</item>-->
+    <!--<item>ELEVEN</item>-->
+    <!--<item>TWELVE</item>-->
+    <!--</string-array>-->
+
+
+    <!-- Results -->
+    <string name="start_new_game">Start New Game</string>
+    <string name="results">Results</string>
+    <string name="game_over">Game over</string>
+    <string name="round">Round #</string>
+    <string name="points">Points %1$d</string>
+    <string name="result_total_points">You got %1$d points in total</string>
+    <string name="start_screen">Return to start screen</string>
+
+
+    <!-- How to play -->
+    <string name="how_to_play_header">How to play</string>
+    <string name="how_to_play_text">
+        You get six dice to roll.\nA game consists of 10 rounds. In each round you can roll the dice three times. You can choose to hold a die by clicking on it (it will turn grey to indicate its status).\n\nScoring\nEach die may only be counted once.\nAfter a round is finished, you have to choose a score. A score choice is consumed once chosen, meaning you can only choose a particular score once per game.\nThere are ten different scores choices: Low, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, and Twelve. \nLow is counted a little different than the others: All dice with a value of three or lower counts towards your points.\nFor the other choices: all dice that can be used (in combination with other dice or by itself) to sum up to the exact score choice yields points. \nE.g. a roll of 2, 5, 4, 3, 6, 2 would yield 18 points for the choice NINE since 5 + 4, and 6 + 3 both sums up to 9 points. \n\nThe game automatically calculates the points for the chosen score. The score choice that yields the most points will automatically be selected after each round (but it does not mean it\'s always the best choice).\nIf two or more score choices yields the same amount of points, the highest score choice will be selected.\nThe game will use the first combinations found. There might be alternative combinations, but the total points will always be the same nevertheless.\n\nYou can see which score choices you have left by expanding the drop down list during a round. You can also click on \"Total points\" in the bottom left corner to view the current score board.\n
+    </string>
 
 </resources>

@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
@@ -14,16 +13,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button startButton = findViewById(R.id.start_button);
-        startButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MainGameActivity.class);
-            startActivity(intent);
-        });
+        Button startGameButton = findViewById(R.id.start_game_button);
+        Intent gameIntent = new Intent(this, MainGameActivity.class);
+        startGameButton.setOnClickListener(view -> startActivity(gameIntent));
+
+        Button howToPlayButton = findViewById(R.id.how_to_play_button);
+        Intent howToPlayScreen = new Intent(this, HowToPlayActivity.class);
+        howToPlayButton.setOnClickListener(view -> startActivity(howToPlayScreen));
 
     }
 
-    /*public void startGame(View view) {
-        Intent intent = new Intent(this, MainGameActivity.class);
-        startActivity(intent);
-    }*/
 }
